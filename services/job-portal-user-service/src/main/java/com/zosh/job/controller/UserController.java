@@ -34,7 +34,7 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toDto(user));
     }
 
-    @PostMapping("/{userId}/suspend")
+    @PatchMapping("/{userId}/suspend")
     public ResponseEntity<UserResponse> suspendUser(@PathVariable Long userId) throws Exception {
         return ResponseEntity.ok(userService.suspendUser(userId));
     }
@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.ok(userResponses);
     }
 
-    @GetMapping("/{userId}/activate")
+    @PatchMapping("/{userId}/activate")
     public ResponseEntity <UserResponse> activateUser(@PathVariable Long userId) throws Exception {
         return ResponseEntity.ok(userService.activateUser(userId));
     }
