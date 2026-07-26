@@ -8,12 +8,16 @@ import com.zosh.job.payload.AuthResponse;
 import com.zosh.job.payload.LoginRequest;
 import com.zosh.job.payload.SignupRequest;
 import com.zosh.job.repository.UserRepository;
+import com.zosh.job.security.CustomUserDetailsService;
 import com.zosh.job.security.JwtProvider;
 import com.zosh.job.service.AuthService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final CustomUserDetailsService customUserDetailsService;
+
 
     @Override
     public AuthResponse signup(SignupRequest req) throws Exception {
@@ -66,6 +72,32 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest req) {
-        return null;
+        Authentication authentication = authenticate(req.getEmail(), req.getPassword());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = userRepository.findByEmail(req.getEmail());
+        String jwt = jwtProvider.generateToken(authentication, user.getId());
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
+        AuthResponse response = new AuthResponse();
+        response.setTitle("welcome Back --" + user.getFullName());
+        response.setMessage("User logged in successfully");
+        response.setJwt(jwt);
+        response.setUser(UserMapper.toDto(user));
+        return response;
+    }
+
+    private Authentication authenticate(@Email(message = "Email should be valid") @NotBlank(message = "Email is mandatory") String email, @NotBlank(message = "Password is mandatory") String password) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            if (userDetails == null) {
+                throw new RuntimeException("User not found with email " + email);
+            }
+            throw new RuntimeException("Invalid password for email " + email);
+        }
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
