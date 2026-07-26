@@ -3,6 +3,8 @@ package com.zosh.job.mapper;
 import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.model.User;
 
+import java.util.List;
+
 public class UserMapper {
     public static UserResponse toDto(User user) {
         UserResponse userResponse = new UserResponse();
@@ -16,5 +18,9 @@ public class UserMapper {
         userResponse.setRole(user.getRole());
         userResponse.setStatus(user.getStatus());
         return userResponse;
+    }
+
+    public static List<UserResponse> toDtoList(List<User> users) {
+        return users.stream().map(UserMapper::toDto).toList();
     }
 }
