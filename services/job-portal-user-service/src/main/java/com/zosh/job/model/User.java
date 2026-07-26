@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -50,7 +51,7 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private LocalDateTime lastLong;
+    private LocalDateTime lastLogin;
 
     private LocalDateTime suspendedAt;
 
