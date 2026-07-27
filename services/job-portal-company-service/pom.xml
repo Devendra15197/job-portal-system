@@ -11,10 +11,10 @@
 
 
     <groupId>com.zosh.job</groupId>
-    <artifactId>job-portal-user-service</artifactId>
+    <artifactId>job-portal-company-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>job-portal-user-service</name>
-    <description>User Service - Auth, Profile and User Management for Job Portal</description>
+    <name>job-portal-company-service</name>
+    <description>Company Service - Company Management for Job Portal</description>
 
     <dependencies>
         <dependency>
