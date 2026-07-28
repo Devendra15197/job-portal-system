@@ -6,7 +6,10 @@ import com.zosh.job.domain.CompanyType;
 import com.zosh.job.domain.IndustryType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,4 +64,14 @@ public class Company {
 
     @ElementCollection
     private List<SocialLink> socialLinks = new ArrayList<>();
+
+    private Boolean active = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }
