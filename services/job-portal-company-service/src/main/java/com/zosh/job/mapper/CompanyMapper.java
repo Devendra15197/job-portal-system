@@ -5,6 +5,7 @@ import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.modal.Company;
 import com.zosh.job.modal.SocialLink;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class CompanyMapper {
                 .socialLinks(socialLinkResponse)
                 .createdAt(company.getCreatedAt())
                 .updatedAt(company.getUpdatedAt())
+                //.verifiedAt(LocalDateTime.now())
+                .isVerified(company.isVerified())
                 .build();
     }
 
