@@ -5,6 +5,7 @@ import com.zosh.job.domain.CompanyStatus;
 import com.zosh.job.domain.CompanyType;
 import com.zosh.job.domain.IndustryType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -32,6 +33,11 @@ public class Company {
     @Column(unique = true)
     private String slug;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String phone;
+
     private String tagline;
 
     private String description;
@@ -55,6 +61,8 @@ public class Company {
 
     @Enumerated(EnumType.STRING)
     private CompanyStatus status = CompanyStatus.ACTIVE;
+
+    private boolean isVerified = false;
 
     @Column(unique = true)
     private String registrationNumber;

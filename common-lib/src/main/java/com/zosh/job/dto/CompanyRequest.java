@@ -25,6 +25,9 @@ public class CompanyRequest {
 
     private String coverImageUrl;
 
+    private String description;
+
+
     @Pattern(regexp = "^(https?://.*)", message = "Website must be a valid URL")
     private String website;
 
@@ -40,7 +43,7 @@ public class CompanyRequest {
     @NotNull(message = "Company size is required")
     private CompanySize companySize;
 
-    @NotBlank(message = "Company type is required")
+    @NotNull(message = "Company type is required")
     private CompanyType companyType;
 
     @NotNull(message = "Industry type is required")

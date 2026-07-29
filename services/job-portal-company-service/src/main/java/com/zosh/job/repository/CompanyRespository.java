@@ -7,12 +7,14 @@ import com.zosh.job.modal.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface CompanyRespository extends JpaRepository<Company, Long> {
 
-    <Optional> Company findByOwnerId(Long ownerId);
+    Company findByOwnerId(Long ownerId);
 
     boolean existsByOwnerId(Long ownerId);
 
