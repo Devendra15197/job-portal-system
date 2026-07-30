@@ -4,11 +4,19 @@ import com.zosh.job.domain.ExperienceLevel;
 import com.zosh.job.domain.JobStatus;
 import com.zosh.job.domain.JobType;
 import com.zosh.job.domain.WorkMode;
+import com.zosh.job.dto.response.CompanyResponse;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class JobResponse {
 
     private Long id;
@@ -18,7 +26,7 @@ public class JobResponse {
     private String responsibilities;
     private String benefits;
 
-    private CompanySummaryResponse company;
+    private CompanyResponse company;
     private Long employerId;
 
 //    private JobCategoryResponse category;
