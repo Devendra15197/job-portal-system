@@ -34,6 +34,8 @@ public class Job {
 
     private String responsibilites;
 
+    private String description;
+
     private String benefits;
 
     @Column(nullable = false)
