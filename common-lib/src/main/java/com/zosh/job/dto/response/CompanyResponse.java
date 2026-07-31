@@ -8,7 +8,6 @@ import com.zosh.job.dto.SocialLinkResponse;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -59,5 +58,5 @@ public class CompanyResponse {
     private LocalDateTime updatedAt;
     private LocalDateTime verifiedAt;
 
-    private boolean isVerified;
+            private boolean isVerified;
 }
