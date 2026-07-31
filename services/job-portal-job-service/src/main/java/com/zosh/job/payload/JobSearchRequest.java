@@ -4,11 +4,16 @@ import com.zosh.job.domain.ExperienceLevel;
 import com.zosh.job.domain.JobStatus;
 import com.zosh.job.domain.JobType;
 import com.zosh.job.domain.WorkMode;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class JobSearchRequest {
     private String keyword;
     private Long categoryId;
