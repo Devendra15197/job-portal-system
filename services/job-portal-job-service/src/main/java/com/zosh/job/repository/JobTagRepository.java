@@ -1,0 +1,11 @@
+package com.zosh.job.repository;
+
+import com.zosh.job.modal.JobTag;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface JobTagRepository extends JpaRepository<JobTag, Long> {
+    boolean existsByName(String name);
+
+    boolean existsBySlug(String slug);
+}
