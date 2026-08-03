@@ -6,6 +6,7 @@ import com.zosh.job.modal.JobCategory;
 import com.zosh.job.payload.JobCategoryRequest;
 import com.zosh.job.repository.JobCategoryRepository;
 import com.zosh.job.service.JobCategoryService;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,8 @@ import java.util.List;
 public class JobCategoryServiceImpl implements JobCategoryService {
 
     private final JobCategoryRepository jobCategoryService;
-    private final JobCategoryMapper jobCategoryMapper;
 
+    @Transactional
     @Override
     public JobCategoryResponse createJobCategory(JobCategoryRequest jobCategoryRequest) throws Exception {
         if (jobCategoryService.existsByName(jobCategoryRequest.getName())) {
@@ -36,10 +37,11 @@ public class JobCategoryServiceImpl implements JobCategoryService {
                 .description(jobCategoryRequest.getDescription())
                 .iconUrl(jobCategoryRequest.getIconUrl())
                 .parent(parent)
+                .active(true)
                 .build();
         JobCategory savedCategory = jobCategoryService.save(jobCategory);
 
-        return jobCategoryMapper.toJobCategoryResponse(savedCategory, true);
+        return JobCategoryMapper.toJobCategoryResponse(savedCategory, true);
     }
 
     private String generateUniqueSlug(@NotBlank(message = "Company name is required") String name) throws Exception {
@@ -60,14 +62,14 @@ public class JobCategoryServiceImpl implements JobCategoryService {
 
         List<JobCategory> jobCategories = jobCategoryService.findByActiveTrue();
         return jobCategories.stream()
-                .map(category -> jobCategoryMapper.toJobCategoryResponse(category, false))
+                .map(category -> JobCategoryMapper.toJobCategoryResponse(category, false))
                 .toList();
     }
 
     @Override
     public JobCategoryResponse getJobCategoryById(Long id) throws Exception {
         JobCategory jobCategory = getJobCategoryEntityById(id);
-        return jobCategoryMapper.toJobCategoryResponse(jobCategory, true);
+        return JobCategoryMapper.toJobCategoryResponse(jobCategory, true);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class JobCategoryServiceImpl implements JobCategoryService {
         jobCategory.setParent(parent);
 
         JobCategory updatedCategory = jobCategoryService.save(jobCategory);
-        return jobCategoryMapper.toJobCategoryResponse(updatedCategory, true);
+        return JobCategoryMapper.toJobCategoryResponse(updatedCategory, true);
     }
 
     @Override

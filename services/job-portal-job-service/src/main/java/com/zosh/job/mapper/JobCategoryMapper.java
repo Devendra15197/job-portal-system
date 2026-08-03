@@ -4,6 +4,7 @@ package com.zosh.job.mapper;
 import com.zosh.job.dto.JobCategoryResponse;
 import com.zosh.job.modal.JobCategory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class JobCategoryMapper {
@@ -15,7 +16,7 @@ public class JobCategoryMapper {
 
         List<JobCategoryResponse> subCategories = null;
 
-        if (includeChildren) {
+        if (includeChildren && jobCategory.getSubCategories() != null && !jobCategory.getSubCategories().isEmpty()) {
             subCategories = jobCategory.getSubCategories()
                     .stream()
                     .map(subCategory -> toJobCategoryResponse(subCategory, false))
@@ -30,7 +31,8 @@ public class JobCategoryMapper {
                 .parentId(jobCategory.getParent() != null ? jobCategory.getParent().getId() : null)
                 .parentName(jobCategory.getParent() != null ? jobCategory.getParent().getName() : null)
                 .subCategories(subCategories)
-                .createdAt(jobCategory.getCreatedAt())
+                .createdAt(LocalDateTime.now())
+                .active(jobCategory.getActive())
                 .build();
     }
 }

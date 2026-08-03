@@ -31,7 +31,7 @@ public class JobSkillServiceImpl implements JobSkillService {
         JobSkill jobSkill = JobSkill.builder()
                 .name(jobSkillRequest.getName())
                 .slug(slug)
-                //.active(jobSkillRequest.isActive())
+                .active(true)
                 .category(jobSkillRequest.getCategory())
                 .build();
 

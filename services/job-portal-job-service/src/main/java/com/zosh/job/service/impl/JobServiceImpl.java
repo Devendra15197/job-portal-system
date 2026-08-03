@@ -6,27 +6,48 @@ import com.zosh.job.dto.JobResponse;
 import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.mapper.JobMapper;
 import com.zosh.job.modal.Job;
+import com.zosh.job.modal.JobCategory;
+import com.zosh.job.modal.JobSkill;
+import com.zosh.job.modal.JobTag;
 import com.zosh.job.modal.embeddable.JobLocation;
 import com.zosh.job.modal.embeddable.SalaryRange;
 import com.zosh.job.payload.JobSearchRequest;
 import com.zosh.job.repository.JobRepository;
 import com.zosh.job.repository.JobSpecification;
+import com.zosh.job.service.JobCategoryService;
 import com.zosh.job.service.JobService;
+import com.zosh.job.service.JobSkillService;
+import com.zosh.job.service.JobTagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
+    private final JobCategoryService jobCategoryService;
+    private final JobSkillService jobSkillService;
+    private final JobTagService jobTagService;
 
     @Override
-    public JobResponse createJob(Long employerId, JobRequest jobRequest) {
+    public JobResponse createJob(Long employerId, JobRequest jobRequest) throws Exception {
+
+        JobCategory category = jobCategoryService.getJobCategoryEntityById(jobRequest.getCategoryId()); // Validate category existence
+
+        Set<JobSkill> skills = jobRequest.getSkillIds() != null ?
+                jobSkillService.getSkillByIds(jobRequest.getSkillIds()) : Collections.emptySet();
+
+        Set<JobTag> tags = jobRequest.getTagIds() != null ?
+                jobTagService.getJobTagsByIds(jobRequest.getTagIds()) : Collections.emptySet();
 
         Long companyId = 1L;
         Job job = Job.builder()
@@ -36,16 +57,18 @@ public class JobServiceImpl implements JobService {
                 .benefits(jobRequest.getBenefits())
                 .companyId(companyId)
                 .employerId(employerId)
-//                .category(category)
-//                .skills(skills)
-//                .tags(tags)
+                .category(category)
+                .skills(skills)
+                .tags(tags)
                 .location(buildLocation(jobRequest))
                 .salaryRange(buildSalaryRange(jobRequest))
                 .jobType(jobRequest.getJobType())
                 .workMode(jobRequest.getWorkMode())
+                .status(JobStatus.DRAFT)
                 .experienceLevel(jobRequest.getExperienceLevel())
                 .openings(jobRequest.getOpenings() != null ? jobRequest.getOpenings() : 1)
                 .expiresAt(jobRequest.getExpiresAt())
+                .active(true)
                 .build();
 
         Job savedJob = jobRepository.save(job);
@@ -59,11 +82,23 @@ public class JobServiceImpl implements JobService {
                 .orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
         assertEmployer(job, employerId);
 
+        JobCategory category = jobCategoryService.getJobCategoryEntityById(jobRequest.getCategoryId()); // Validate category existence
+
+        Set<JobSkill> skills = jobRequest.getSkillIds() != null ?
+                jobSkillService.getSkillByIds(jobRequest.getSkillIds()) : Collections.emptySet();
+
+        Set<JobTag> tags = jobRequest.getTagIds() != null ?
+                jobTagService.getJobTagsByIds(jobRequest.getTagIds()) : Collections.emptySet();
+
+
         job.setTitle(jobRequest.getTitle());
         job.setDescription(jobRequest.getDescription());
         job.setRequirements(jobRequest.getRequirements());
         job.setResponsibilites(jobRequest.getResponsibilities());
         job.setBenefits(jobRequest.getBenefits());
+        job.setCategory(category);
+        job.setSkills(skills);
+        job.setTags(tags);
         job.setLocation(buildLocation(jobRequest));
         job.setSalaryRange(buildSalaryRange(jobRequest));
         job.setJobType(jobRequest.getJobType());
@@ -145,7 +180,7 @@ public class JobServiceImpl implements JobService {
     }
 
     private JobResponse convertToResponse(Job savedJob) {
-        //todo: fetchh company response
+        //todo: fetch company response
         CompanyResponse companyResponse = CompanyResponse.builder()
                 .id(savedJob.getCompanyId())
                 .build();

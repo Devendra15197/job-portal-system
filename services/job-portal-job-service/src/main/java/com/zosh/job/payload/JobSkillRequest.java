@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class JobSkillRequest {
     @NotBlank(message = "Skill name is required")
     @Size(max = 100, message = "Skill name must not exceed 100 characters")
