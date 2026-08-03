@@ -18,11 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobController {
 
-    private JobService jobService;
+    private final JobService jobService;
 
     @PostMapping
     public ResponseEntity<JobResponse> createJob(@RequestHeader("X-User-Id") Long employerId,
-                                                 @RequestBody @Valid JobRequest jobRequest) {
+                                                 @RequestBody @Valid JobRequest jobRequest) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(jobService.createJob(employerId, jobRequest));
     }
 
@@ -32,7 +32,7 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JobResponse>> getJobs(@RequestBody JobSearchRequest request) {
+    public ResponseEntity<List<JobResponse>> getAllJobs(@ModelAttribute JobSearchRequest request) {
         return ResponseEntity.ok(jobService.getJobs(request));
     }
 
