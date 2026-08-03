@@ -75,7 +75,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private String generateUniqueSlug(@NotBlank(message = "Company name is required") String name) {
         String base = name.toLowerCase()
-                .replaceAll("[^a-z0-9\\s-]", "").trim().replaceAll("[\\s-]", "-");
+                .replaceAll("[^a-z0-9\\s-]", "").trim().replaceAll("[\\s-]+", "-");
         if (!companyRespository.existsBySlug(base)) {
             return base;
         }
