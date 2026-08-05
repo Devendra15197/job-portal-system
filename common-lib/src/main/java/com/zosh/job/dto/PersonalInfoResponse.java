@@ -1,6 +1,5 @@
 package com.zosh.job.dto;
 
-import jakarta.persistence.Embeddable;
 import lombok.*;
 
 @Getter
@@ -8,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PersonalInfo {
+public class PersonalInfoResponse {
 
     private String firstName;
     private String lastName;

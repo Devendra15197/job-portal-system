@@ -3,7 +3,6 @@ package com.zosh.job.dto;
 import com.zosh.job.domain.ResumeTemplate;
 import com.zosh.job.domain.ResumeVisibility;
 import lombok.*;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +17,8 @@ public class ResumeResponse {
     private ResumeTemplate resumeTemplate;
     private ResumeVisibility resumeVisibility;
     private Boolean isDefault;
-    private PersonalInfo personalInfo;
+    private String title;
+    private PersonalInfoResponse personalInfo;
     private String summary;
     //    private String uploadedFileName;
 //    private String uploadedFileUrl;
