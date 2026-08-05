@@ -39,6 +39,8 @@ public class Resume {
     @Column(nullable = false)
     private Boolean isDefault = false;
 
+    private Boolean isActive = true;
+
     @Embedded
     private PersonalInfo personalInfo;
 
