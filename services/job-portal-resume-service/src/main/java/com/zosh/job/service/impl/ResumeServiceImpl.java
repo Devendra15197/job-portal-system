@@ -1,4 +1,4 @@
-package com.zosh.job.service;
+package com.zosh.job.service.impl;
 
 import com.zosh.job.dto.PersonalInfoResponse;
 import com.zosh.job.dto.ResumeResponse;
@@ -7,6 +7,7 @@ import com.zosh.job.mapper.ResumeMapper;
 import com.zosh.job.modal.PersonalInfo;
 import com.zosh.job.payload.CreateResumeRequest;
 import com.zosh.job.repository.ResumeRepository;
+import com.zosh.job.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
