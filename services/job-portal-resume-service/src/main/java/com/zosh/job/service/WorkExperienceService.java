@@ -6,7 +6,7 @@ import com.zosh.job.payload.AddWorkExperience;
 import java.util.List;
 
 public interface WorkExperienceService {
-    WorkExperienceResponse addWorkExperience(Long resumeId, Long candidateId, AddWorkExperience request);
+    WorkExperienceResponse addWorkExperience(Long resumeId, Long candidateId, AddWorkExperience request) throws Exception;
 
     List<WorkExperienceResponse> getAllWorkExperiences(Long resumeId);
 

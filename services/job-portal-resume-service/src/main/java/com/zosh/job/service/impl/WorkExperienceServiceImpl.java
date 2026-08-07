@@ -1,6 +1,7 @@
 package com.zosh.job.service.impl;
 
 import com.zosh.job.dto.WorkExperienceResponse;
+import com.zosh.job.entity.Resume;
 import com.zosh.job.payload.AddWorkExperience;
 import com.zosh.job.repository.WorkExperienceRepository;
 import com.zosh.job.service.ResumeService;
@@ -18,9 +19,12 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
     private final ResumeService resumeService;
 
     @Override
-    public WorkExperienceResponse addWorkExperience(Long resumeId, Long candidateId, AddWorkExperience request) {
+    public WorkExperienceResponse addWorkExperience(Long resumeId, Long candidateId, AddWorkExperience request) throws Exception {
+        Resume resume = resumeService.getResumeEntity(resumeId);
+        assertOwner(resume, candidateId);
         return null;
     }
+
 
     @Override
     public List<WorkExperienceResponse> getAllWorkExperiences(Long resumeId) {
@@ -36,4 +40,9 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
     public void deleteWorkExperience(Long resumeId, Long workExperienceId, Long candidateId) {
 
     }
+    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+        if (!resume.getCandidateId().equals(candidateId))
+            throw new Exception("resume Not found");
+    }
+
 }
