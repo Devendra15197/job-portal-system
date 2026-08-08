@@ -1,6 +1,7 @@
 package com.zosh.job.service;
 
 import com.zosh.job.dto.WorkExperienceResponse;
+import com.zosh.job.modal.WorkExperience;
 import com.zosh.job.payload.AddWorkExperience;
 
 import java.util.List;
@@ -10,8 +11,10 @@ public interface WorkExperienceService {
 
     List<WorkExperienceResponse> getAllWorkExperiences(Long resumeId);
 
-    WorkExperienceResponse updateWorkExperience(Long resumeId, Long workExperienceId, AddWorkExperience request);
+    WorkExperienceResponse updateWorkExperience(Long resumeId, Long candidateId, Long workExperienceId, AddWorkExperience request) throws Exception;
 
-    void deleteWorkExperience(Long resumeId, Long workExperienceId, Long candidateId);
+    void deleteWorkExperience(Long resumeId, Long workExperienceId, Long candidateId) throws Exception;
+
+    WorkExperience getWorkExperienceEntity(Long workExperienceId) throws Exception;
 
 }
