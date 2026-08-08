@@ -1,0 +1,57 @@
+package com.zosh.job.controller;
+
+import com.zosh.job.dto.ApiResponse;
+import com.zosh.job.dto.WorkExperienceResponse;
+import com.zosh.job.payload.AddWorkExperience;
+import com.zosh.job.service.WorkExperienceService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/resume/{resumeId}/work-experiences")
+public class WorkExperienceController {
+    private final WorkExperienceService workExperienceService;
+
+    @PostMapping
+    public ResponseEntity<WorkExperienceResponse> addWorkExperience(
+            @PathVariable Long resumeId,
+            @RequestHeader("X-User-Id") Long candidateId,
+            @RequestBody @Valid AddWorkExperience req
+    ) throws Exception {
+        return ResponseEntity.ok(workExperienceService.addWorkExperience(resumeId, candidateId, req));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<WorkExperienceResponse>> getWorkExperiences(
+            @PathVariable Long resumeId
+    ) {
+        return ResponseEntity.ok(workExperienceService.getAllWorkExperiences(resumeId));
+    }
+
+    @PutMapping("/{experienceId}")
+    public ResponseEntity<WorkExperienceResponse> updateWorkExperience(
+            @PathVariable Long resumeId,
+            @PathVariable Long experienceId,
+            @RequestHeader("X-User-Id") Long candidateId,
+            @RequestBody @Valid AddWorkExperience req
+    ) throws Exception {
+        return ResponseEntity.ok(workExperienceService.updateWorkExperience(resumeId, candidateId, experienceId, req));
+    }
+
+
+    @DeleteMapping("/{experienceId}")
+    public ResponseEntity<ApiResponse> deleteWorkExperience(
+            @PathVariable Long resumeId,
+            @PathVariable Long experienceId,
+            @RequestHeader("X-User-Id") Long candidateId,
+            @RequestBody @Valid AddWorkExperience req
+    ) throws Exception {
+        workExperienceService.deleteWorkExperience(resumeId, experienceId, candidateId);
+        return ResponseEntity.ok(new ApiResponse("Work Experience Deleted Successfully", true));
+    }
+}
