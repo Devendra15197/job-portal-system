@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResumeSkillRespnse {
+public class ResumeSkillResponse {
     private Long id;
 
     private String skillName;
