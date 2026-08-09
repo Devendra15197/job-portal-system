@@ -38,7 +38,7 @@ public class ResumeSkillServiceImpl implements ResumeSkillService {
     }
 
     @Override
-    public List<ResumeSkillResponse> getAllSkills(Long resumeId, Long candidateId) {
+    public List<ResumeSkillResponse> getAllSkills(Long resumeId) {
         return repository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream()
                 .map(ResumeMapper::toResumeSkillResponse).toList();
     }
