@@ -11,8 +11,8 @@ public interface ResumeSkillService {
 
     List<ResumeSkillResponse> getAllSkills(Long resumeId, Long candidateId);
 
-    ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId, AddResumeSkillRequest request);
+    ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId, AddResumeSkillRequest request) throws Exception;
 
-    void deleteSkill(Long skillId, Long resumeId, Long candidateId);
+    void deleteSkill(Long skillId, Long resumeId, Long candidateId) throws Exception;
 
 }

@@ -39,17 +39,30 @@ public class ResumeSkillServiceImpl implements ResumeSkillService {
 
     @Override
     public List<ResumeSkillResponse> getAllSkills(Long resumeId, Long candidateId) {
-        return List.of();
+        return repository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream()
+                .map(ResumeMapper::toResumeSkillResponse).toList();
     }
 
     @Override
-    public ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId, AddResumeSkillRequest request) {
-        return null;
+    public ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId, AddResumeSkillRequest request) throws Exception {
+        ResumeSkill skill = repository.findById(skillId).orElseThrow(() -> new Exception("Skill not found"));
+        assertOwner(skill.getResume(), candidateId);
+
+        skill.setSkillName(request.getSkillName());
+        skill.setProficiencyLevel(request.getProficiencyLevel());
+        skill.setYearsOfExperience(request.getYearsOfExperience());
+        skill.setDisplayOrder(request.getDisplayOrder() != null ? request.getDisplayOrder() : 0);
+
+        ResumeSkill saved = repository.save(skill);
+        return ResumeMapper.toResumeSkillResponse(saved);
     }
 
     @Override
-    public void deleteSkill(Long skillId, Long resumeId, Long candidateId) {
+    public void deleteSkill(Long skillId, Long resumeId, Long candidateId) throws Exception {
+        ResumeSkill skill = repository.findById(skillId).orElseThrow(() -> new Exception("Skill not found"));
+        assertOwner(skill.getResume(), candidateId);
 
+        repository.delete(skill);
     }
 
 
