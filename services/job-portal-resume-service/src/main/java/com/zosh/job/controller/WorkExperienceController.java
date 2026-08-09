@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/resume/{resumeId}/work-experiences")
+@RequestMapping("/api/resumes/{resumeId}/work-experiences")
 public class WorkExperienceController {
     private final WorkExperienceService workExperienceService;
 
