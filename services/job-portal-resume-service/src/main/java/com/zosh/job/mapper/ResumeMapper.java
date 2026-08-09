@@ -2,7 +2,9 @@ package com.zosh.job.mapper;
 
 import com.zosh.job.dto.PersonalInfoResponse;
 import com.zosh.job.dto.ResumeResponse;
+import com.zosh.job.dto.ResumeSkillResponse;
 import com.zosh.job.entity.Resume;
+import com.zosh.job.entity.ResumeSkill;
 import com.zosh.job.modal.PersonalInfo;
 
 public class ResumeMapper {
@@ -40,6 +42,20 @@ public class ResumeMapper {
                 .completionScore(resume.getCompletionScore())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())
+                .build();
+    }
+
+    public static ResumeSkillResponse toResumeSkillResponse(ResumeSkill skill) {
+        if (skill == null) {
+            return null;
+        }
+
+        return ResumeSkillResponse.builder()
+                .id(skill.getId())
+                .skillName(skill.getSkillName())
+                .proficiencyLevel(skill.getProficiencyLevel())
+                .yearsOfExperience(skill.getYearsOfExperience())
+                .displayOrder(skill.getDisplayOrder())
                 .build();
     }
 }
