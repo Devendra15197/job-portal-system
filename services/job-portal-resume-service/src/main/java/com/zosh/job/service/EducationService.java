@@ -1,0 +1,18 @@
+package com.zosh.job.service;
+
+import com.zosh.job.dto.EducationResponse;
+import com.zosh.job.payload.AddEducationRequest;
+
+import java.util.List;
+
+public interface EducationService {
+    EducationResponse addEducation(Long resumeId, Long candidateId, AddEducationRequest educationRequest) throws Exception;
+
+    List<EducationResponse> getEducations(Long resumeId);
+
+    EducationResponse updateEducation(Long educationId, Long resumeId, Long candidateId, AddEducationRequest educationRequest) throws Exception;
+
+    void deleteEducation(Long educationId, Long resumeId, Long candidateId) throws Exception;
+
+
+}
