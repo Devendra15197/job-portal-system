@@ -1,13 +1,11 @@
 package com.zosh.job.mapper;
 
-import com.zosh.job.dto.EducationResponse;
-import com.zosh.job.dto.PersonalInfoResponse;
-import com.zosh.job.dto.ResumeResponse;
-import com.zosh.job.dto.ResumeSkillResponse;
+import com.zosh.job.dto.*;
 import com.zosh.job.entity.Resume;
 import com.zosh.job.entity.ResumeSkill;
 import com.zosh.job.modal.Education;
 import com.zosh.job.modal.PersonalInfo;
+import com.zosh.job.modal.Project;
 
 public class ResumeMapper {
 
@@ -61,8 +59,8 @@ public class ResumeMapper {
                 .build();
     }
 
-    public static EducationResponse toEducationResponse(Education education){
-        if(education == null){
+    public static EducationResponse toEducationResponse(Education education) {
+        if (education == null) {
             return null;
         }
         return EducationResponse.builder()
@@ -76,6 +74,25 @@ public class ResumeMapper {
                 .isCurrentlyStudying(education.getIsCurrentlyStudying())
                 .description(education.getDescription())
                 .displayOrder(education.getDisplayOrder())
+                .build();
+    }
+
+    public static ProjectResponse toProjectResponse(Project project) {
+        if (project == null) {
+            return null;
+        }
+
+        return ProjectResponse.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .technologies(project.getTechnologies())
+                .projectUrl(project.getProjectUrl())
+                .sourceCodeUrl(project.getSourceCodeUrl())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .isOngoing(project.getIsOngoing())
+                .displayOrder(project.getDisplayOrder())
                 .build();
     }
 }

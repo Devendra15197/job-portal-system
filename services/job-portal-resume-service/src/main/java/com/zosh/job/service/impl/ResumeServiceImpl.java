@@ -127,7 +127,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     private void assertOwner(Resume resume, Long candidateId) throws Exception {
-        if (resume.getCandidateId().equals(candidateId)) {
+        if (!resume.getCandidateId().equals(candidateId)) {
             throw new Exception("Resume not found with Id ");
         }
     }
