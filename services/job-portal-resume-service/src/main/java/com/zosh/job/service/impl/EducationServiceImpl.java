@@ -79,7 +79,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     private void assertOwner(Resume resume, Long candidateId) throws Exception {
-        if (resume.getCandidateId().equals(candidateId)) {
+        if (!resume.getCandidateId().equals(candidateId)) {
             throw new Exception("Resume not found with Id ");
         }
     }
