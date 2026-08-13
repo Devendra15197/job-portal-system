@@ -4,6 +4,7 @@ import com.zosh.job.dto.*;
 import com.zosh.job.entity.Resume;
 import com.zosh.job.entity.ResumeSkill;
 import com.zosh.job.modal.Education;
+import com.zosh.job.modal.Language;
 import com.zosh.job.modal.PersonalInfo;
 import com.zosh.job.modal.Project;
 
@@ -93,6 +94,18 @@ public class ResumeMapper {
                 .endDate(project.getEndDate())
                 .isOngoing(project.getIsOngoing())
                 .displayOrder(project.getDisplayOrder())
+                .build();
+    }
+
+    public static LanguageReponse toLanguageResponse(Language language) {
+        if (language == null) {
+            return null;
+        }
+        return LanguageReponse.builder()
+                .id(language.getId())
+                .languageName(language.getLanguageName())
+                .languageProficiency(language.getLanguageProficiency())
+                .displayOrder(language.getDisplayOrder())
                 .build();
     }
 }
