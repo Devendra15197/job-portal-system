@@ -1,23 +1,33 @@
 package com.zosh.job.service.impl;
 
-import com.zosh.job.dto.PersonalInfoResponse;
-import com.zosh.job.dto.ResumeResponse;
+import com.zosh.job.dto.*;
 import com.zosh.job.entity.Resume;
 import com.zosh.job.mapper.ResumeMapper;
+import com.zosh.job.mapper.WorkExperienceMapper;
+import com.zosh.job.modal.Award;
 import com.zosh.job.modal.PersonalInfo;
 import com.zosh.job.payload.CreateResumeRequest;
-import com.zosh.job.repository.ResumeRepository;
+import com.zosh.job.repository.*;
 import com.zosh.job.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeRepository resumeRepository;
+    private final WorkExperienceRepository workExperienceRepository;
+    private final EducationRepository educationRepository;
+    private final ResumeSkillRepository resumeSkillRepository;
+    private final ProjectRepository projectRepository;
+    private final CertificationRepository certificationRepository;
+    private final AwardRepository awardRepository;
+    private final LanguageRepository languageRepository;
 
     @Override
     public ResumeResponse createResume(Long candidateId, CreateResumeRequest resumeRequest) {
@@ -123,7 +133,18 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     private ResumeResponse buildFullResponse(Resume resume) {
-        return ResumeMapper.toResumeResponse(resume);
+        Long resumeId = resume.getId();
+
+
+        List<WorkExperienceResponse> workExperiences = workExperienceRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(WorkExperienceMapper::toWorkExperienceResponse).toList();
+        List<EducationResponse> educations = educationRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toEducationResponse).toList();
+        List<ResumeSkillResponse> skills = resumeSkillRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toResumeSkillResponse).toList();
+        List<ProjectResponse> projects = projectRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toProjectResponse).toList();
+        List<CertificationResponse> certifications = certificationRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toCertificationResponse).toList();
+        List<AwardResponse> awards = awardRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toAwardResponse).toList();
+        List<LanguageReponse> languages = languageRepository.findByResume_IdOrderByDisplayOrderAsc(resumeId).stream().map(ResumeMapper::toLanguageResponse).toList();
+
+        return ResumeMapper.toResumeResponse(resume, workExperiences, educations, skills, projects, certifications, awards, languages);
     }
 
     private void assertOwner(Resume resume, Long candidateId) throws Exception {

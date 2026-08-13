@@ -7,10 +7,17 @@ import com.zosh.job.modal.Education;
 import com.zosh.job.modal.Language;
 import com.zosh.job.modal.PersonalInfo;
 import com.zosh.job.modal.Project;
+import com.zosh.job.modal.Certification;
+import com.zosh.job.modal.Award;
+
+import java.util.List;
 
 public class ResumeMapper {
 
     public static PersonalInfoResponse toPersonalInfoResponse(PersonalInfo personalInfo) {
+        if(personalInfo == null){
+            return null;
+        }
         return PersonalInfoResponse.builder()
                 .firstName(personalInfo.getFirstName())
                 .lastName(personalInfo.getLastName())
@@ -26,7 +33,14 @@ public class ResumeMapper {
                 .build();
     }
 
-    public static ResumeResponse toResumeResponse(Resume resume) {
+    public static ResumeResponse toResumeResponse(Resume resume,
+                                                  List<WorkExperienceResponse> workExperiences,
+                                                  List<EducationResponse> educations,
+                                                  List<ResumeSkillResponse> skills,
+                                                  List<ProjectResponse> projects,
+                                                  List<CertificationResponse> certifications,
+                                                  List<AwardResponse> awards,
+                                                  List<LanguageReponse> languages) {
         if (resume == null) {
             return null;
         }
@@ -43,6 +57,13 @@ public class ResumeMapper {
                 .completionScore(resume.getCompletionScore())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())
+                .workExperiences(workExperiences)
+                .skills(skills)
+                .educations(educations)
+                .projects(projects)
+                .certifications(certifications)
+                .awards(awards)
+                .languages(languages)
                 .build();
     }
 
@@ -75,6 +96,30 @@ public class ResumeMapper {
                 .isCurrentlyStudying(education.getIsCurrentlyStudying())
                 .description(education.getDescription())
                 .displayOrder(education.getDisplayOrder())
+                .build();
+    }
+
+    public static CertificationResponse toCertificationResponse(Certification certification) {
+        if (certification == null) return null;
+        return CertificationResponse.builder()
+                .id(certification.getId())
+                .certificationName(certification.getCertificationName())
+                .issuingOrganization(certification.getIssuingOrganization())
+                .issueDate(certification.getIssueDate())
+                .expirationDate(certification.getExpirationDate())
+                .displayOrder(certification.getDisplayOrder())
+                .build();
+    }
+
+    public static AwardResponse toAwardResponse(Award award) {
+        if (award == null) return null;
+        return AwardResponse.builder()
+                .id(award.getId())
+                .title(award.getTitle())
+                .awardDate(award.getAwardDate())
+                .description(award.getDescription())
+                .issueBy(award.getIssueBy())
+                .displayOrder(award.getDisplayOrder())
                 .build();
     }
 

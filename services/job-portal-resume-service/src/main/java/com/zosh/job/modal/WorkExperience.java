@@ -4,6 +4,8 @@ import com.zosh.job.domain.JobType;
 import com.zosh.job.entity.Resume;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class WorkExperience {
     private String description;
 
     @ElementCollection
+    @Fetch(FetchMode.JOIN)
     private List<String> technologies = new ArrayList<>();
 
     @Column(nullable = false)

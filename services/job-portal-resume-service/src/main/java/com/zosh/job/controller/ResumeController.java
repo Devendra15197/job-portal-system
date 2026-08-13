@@ -32,7 +32,7 @@ public class ResumeController {
         return ResponseEntity.ok(resumeService.getResumeById(resumeId, candidateId));
     }
 
-    @GetMapping("/{my}")
+    @GetMapping("/my")
     public ResponseEntity<List<ResumeResponse>> getMyResumes(
             @RequestHeader("X-User-Id") Long candidateId) throws Exception {
         return ResponseEntity.ok(resumeService.getMyResumes(candidateId));

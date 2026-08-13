@@ -4,6 +4,8 @@ import com.zosh.job.entity.Resume;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
@@ -32,6 +34,7 @@ public class Project {
     private String title;
 
     @ElementCollection
+    @Fetch(FetchMode.JOIN)
     private List<String> technologies;
 
     private String projectUrl;
@@ -47,7 +50,7 @@ public class Project {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer displayOrder= 0;
+    private Integer displayOrder = 0;
 
     @Column(nullable = false)
     @CreationTimestamp
