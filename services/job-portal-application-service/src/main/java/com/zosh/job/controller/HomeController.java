@@ -12,7 +12,7 @@ public class HomeController {
     @RequestMapping("/welcome")
     public String welcome() {
 
-        return "Welcome to the APPLICATION Portal Company Service!" + new ApiResponse("New API Resoinse", true);
+        return "Welcome to the APPLICATION Portal Company Service!";
     }
 }
 
