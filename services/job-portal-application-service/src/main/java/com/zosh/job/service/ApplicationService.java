@@ -9,7 +9,7 @@ import com.zosh.job.payload.WithdrawApplicationRequest;
 import java.util.List;
 
 public interface ApplicationService {
-    ApplicationResponse createApplication(Long candidateId, CreateApplicationRequest request);
+    ApplicationResponse createApplication(Long candidateId, CreateApplicationRequest request) throws Exception;
 
     ApplicationResponse getApplicationById(Long applicationId);
 
