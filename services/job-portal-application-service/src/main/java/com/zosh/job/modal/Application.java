@@ -57,7 +57,7 @@ public class Application {
 
     private AiShortListStatus aiShortListStatus;
 
-    private Local withdrawnAt;
+    private LocalDateTime withdrawnAt;
 
     private String withdrawnReason;
 
