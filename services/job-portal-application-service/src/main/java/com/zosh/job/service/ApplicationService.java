@@ -11,7 +11,7 @@ import java.util.List;
 public interface ApplicationService {
     ApplicationResponse createApplication(Long candidateId, CreateApplicationRequest request) throws Exception;
 
-    ApplicationResponse getApplicationById(Long applicationId);
+    ApplicationResponse getApplicationById(Long applicationId) throws Exception;
 
     List<ApplicationResponse> getApplications(Long candidateId);
 
@@ -27,5 +27,5 @@ public interface ApplicationService {
 
     void deleteApplication(Long applicationId, Long candidateId);
 
-    Application getApplicationEntity(Long applicationId);
+    Application getApplicationEntity(Long applicationId) throws Exception;
 }
