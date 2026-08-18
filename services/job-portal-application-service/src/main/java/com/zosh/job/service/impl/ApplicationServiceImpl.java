@@ -34,27 +34,33 @@ public class ApplicationServiceImpl implements ApplicationService {
         //fetch resume
         Application application = ApplicationMapper.toEntity(request, candidateId, companyId, employerId);
         Application savedApplication = repository.save(application);
+
+        //todo: AI Screening
         return buildFullResponse(savedApplication);
+
     }
 
     @Override
-    public ApplicationResponse getApplicationById(Long applicationId) {
-        return null;
+    public ApplicationResponse getApplicationById(Long applicationId) throws Exception {
+        Application application = getApplicationEntity(applicationId);
+        return buildFullResponse(application);
     }
 
     @Override
     public List<ApplicationResponse> getApplications(Long candidateId) {
-        return List.of();
+        return repository.findByCandidateId(candidateId).stream()
+                .map(this::buildFullResponse).toList();
     }
 
     @Override
     public List<ApplicationResponse> getApplicationsForJob(Long jobId) {
-        return List.of();
+        return repository.findByJobId(jobId).stream()
+                .map(this::buildFullResponse).toList();
     }
 
     @Override
     public List<ApplicationResponse> getApplicationsForCompany(Long companyId) {
-        return List.of();
+        return null;
     }
 
     @Override
@@ -77,8 +83,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Application getApplicationEntity(Long applicationId) {
-        return null;
+    public Application getApplicationEntity(Long applicationId) throws Exception {
+        return repository.findById(applicationId).orElseThrow(() -> new Exception("application not found"));
     }
 
     public ApplicationResponse buildFullResponse(Application application) {
