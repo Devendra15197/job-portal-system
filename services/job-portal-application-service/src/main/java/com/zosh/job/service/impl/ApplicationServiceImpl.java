@@ -7,11 +7,14 @@ import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.mapper.ApplicationMapper;
 import com.zosh.job.modal.Application;
+import com.zosh.job.payload.CompanyApplicationFilterRequest;
 import com.zosh.job.payload.CreateApplicationRequest;
 import com.zosh.job.payload.WithdrawApplicationRequest;
 import com.zosh.job.repository.ApplicationRepository;
+import com.zosh.job.repository.ApplicationSpecification;
 import com.zosh.job.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,27 +62,65 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationResponse> getApplicationsForCompany(Long companyId) {
-        return null;
+    public List<ApplicationResponse> getApplicationsForCompany(Long userId, CompanyApplicationFilterRequest filter) {
+
+        //TODO: Fetch company
+        Long companyId = 1L;
+
+        Sort sort = buildSort(filter.getSortBy());
+        return repository.findAll(ApplicationSpecification.forCompanyWithFilters(
+                        companyId,
+                        filter.getJobId(),
+                        filter.getStatus(),
+                        filter.getIsStarred(),
+                        filter.getAiShortListStatus(),
+                        filter.getMinAiScore()
+                ), sort).stream()
+                .map(this::buildFullResponse).toList();
     }
 
     @Override
-    public ApplicationResponse updateStatus(Long applicationId, Long employerId, ApplicationStatus status) {
-        return null;
+    public ApplicationResponse updateStatus(Long applicationId, Long employerId, ApplicationStatus status) throws Exception {
+        Application application = getApplicationEntity(applicationId);
+        assertEmployer(application, employerId);
+
+        if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
+            throw new Exception("You cannot update the status of a withdrawn application");
+        }
+
+        application.setStatus(status);
+        Application savedApplication = repository.save(application);
+        return buildFullResponse(savedApplication);
+    }
+
+
+    @Override
+    public ApplicationResponse withdraw(Long applicationId, Long candidateId, WithdrawApplicationRequest request) throws Exception {
+        Application application = getApplicationEntity(applicationId);
+        assertCandidate(application, candidateId);
+
+        application.setStatus(ApplicationStatus.WITHDRAWN);
+        application.setWithdrawnReason(request.getReason());
+        Application savedApplication = repository.save(application);
+        return buildFullResponse(savedApplication);
+    }
+
+
+    @Override
+    public ApplicationResponse toggleStar(Long applicationId, Long employerId) throws Exception {
+        Application application = getApplicationEntity(applicationId);
+        assertEmployer(application, employerId);
+
+        application.setIsStarred(!application.getIsStarred());
+        Application savedApplication = repository.save(application);
+        return buildFullResponse(savedApplication);
     }
 
     @Override
-    public ApplicationResponse withdraw(Long applicationId, Long candidateId, WithdrawApplicationRequest request) {
-        return null;
-    }
-
-    @Override
-    public ApplicationResponse toggleStar(Long applicationId, Long employerId) {
-        return null;
-    }
-
-    @Override
-    public void deleteApplication(Long applicationId, Long candidateId) {
+    public void deleteApplication(Long applicationId, Long candidateId) throws Exception {
+        Application application = getApplicationEntity(applicationId);
+        assertCandidate(application, candidateId);
+        repository.delete(application);
     }
 
     @Override
@@ -95,4 +136,29 @@ public class ApplicationServiceImpl implements ApplicationService {
         UserResponse candidate = UserResponse.builder().id(application.getCandidateId()).build();
         return ApplicationMapper.toResponse(application, job, company, candidate);
     }
+
+
+    private Sort buildSort(String sortBy) {
+        if ("AI_SCORE_DESC".equals(sortBy)) {
+            return Sort.by(Sort.Order.desc("aiScore").with(Sort.NullHandling.NULLS_LAST));
+        } else if ("AI_SCORE_ASC".equals(sortBy)) {
+            return Sort.by(Sort.Order.asc("aiScore").with(Sort.NullHandling.NULLS_LAST));
+        }
+        return Sort.by(Sort.Direction.DESC, "appliedAt");
+    }
+
+
+    private void assertEmployer(Application application, Long employerId) throws Exception {
+        if (!application.getEmployerId().equals(employerId)) {
+            throw new Exception("You are not authorized to update this application");
+        }
+    }
+
+
+    private void assertCandidate(Application application, Long candidateId) throws Exception {
+        if (!application.getCandidateId().equals(candidateId)) {
+            throw new Exception("You are not authorized to withdraw this application");
+        }
+    }
+
 }

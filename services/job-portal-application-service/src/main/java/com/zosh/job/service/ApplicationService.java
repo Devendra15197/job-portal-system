@@ -3,6 +3,7 @@ package com.zosh.job.service;
 import com.zosh.job.domain.ApplicationStatus;
 import com.zosh.job.dto.ApplicationResponse;
 import com.zosh.job.modal.Application;
+import com.zosh.job.payload.CompanyApplicationFilterRequest;
 import com.zosh.job.payload.CreateApplicationRequest;
 import com.zosh.job.payload.WithdrawApplicationRequest;
 
@@ -17,15 +18,15 @@ public interface ApplicationService {
 
     List<ApplicationResponse> getApplicationsForJob(Long jobId);
 
-    List<ApplicationResponse> getApplicationsForCompany(Long companyId);
+    List<ApplicationResponse> getApplicationsForCompany(Long userId, CompanyApplicationFilterRequest request);
 
-    ApplicationResponse updateStatus(Long applicationId, Long employerId, ApplicationStatus status);
+    ApplicationResponse updateStatus(Long applicationId, Long employerId, ApplicationStatus status) throws Exception;
 
-    ApplicationResponse withdraw(Long applicationId, Long candidateId, WithdrawApplicationRequest request);
+    ApplicationResponse withdraw(Long applicationId, Long candidateId, WithdrawApplicationRequest request) throws Exception;
 
-    ApplicationResponse toggleStar(Long applicationId, Long employerId);
+    ApplicationResponse toggleStar(Long applicationId, Long employerId) throws Exception;
 
-    void deleteApplication(Long applicationId, Long candidateId);
+    void deleteApplication(Long applicationId, Long candidateId) throws Exception;
 
     Application getApplicationEntity(Long applicationId) throws Exception;
 }
