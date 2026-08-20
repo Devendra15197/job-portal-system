@@ -1,10 +1,12 @@
 package com.zosh.job.mapper;
 
+import com.zosh.job.dto.ApplicationNoteResponse;
 import com.zosh.job.dto.ApplicationResponse;
 import com.zosh.job.dto.JobResponse;
 import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.modal.Application;
+import com.zosh.job.modal.ApplicationNote;
 import com.zosh.job.payload.CreateApplicationRequest;
 
 public class ApplicationMapper {
@@ -42,6 +44,15 @@ public class ApplicationMapper {
                 .appliedAt(application.getAppliedAt())
                 .updatedAt(application.getUpdatedAt())
 
+                .build();
+    }
+
+    public static ApplicationNoteResponse toNoteResponse(ApplicationNote note) {
+        return ApplicationNoteResponse.builder()
+                .id(note.getId())
+                .content(note.getContent())
+                .addedByUserId(note.getAddedByUserId())
+                .createdAt(note.getCreatedAt())
                 .build();
     }
 }
