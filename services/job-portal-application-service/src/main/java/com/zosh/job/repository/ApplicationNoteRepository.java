@@ -1,0 +1,12 @@
+package com.zosh.job.repository;
+
+import com.zosh.job.dto.ApplicationNoteResponse;
+import com.zosh.job.modal.ApplicationNote;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ApplicationNoteRepository extends JpaRepository<ApplicationNote, Long> {
+    List<ApplicationNote> findByApplicationId(Long applicationId);
+
+}
