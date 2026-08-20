@@ -1,8 +1,11 @@
 package com.zosh.job.controller;
 
+import com.zosh.job.dto.ApiResponse;
 import com.zosh.job.dto.ApplicationResponse;
 import com.zosh.job.payload.CompanyApplicationFilterRequest;
 import com.zosh.job.payload.CreateApplicationRequest;
+import com.zosh.job.payload.UpdateApplicationStatusRequest;
+import com.zosh.job.payload.WithdrawApplicationRequest;
 import com.zosh.job.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +52,38 @@ public class ApplicationController {
         return ResponseEntity.ok(service.getApplicationsForCompany(userId, filter));
     }
 
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApplicationResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Id") Long employerId,
+            @RequestBody @Valid UpdateApplicationStatusRequest request
+    ) throws Exception {
+        return ResponseEntity.ok(service.updateStatus(id, employerId, request.getStatus()));
+    }
 
+    @PatchMapping("/{id}/withdraw")
+    public ResponseEntity<ApplicationResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Id") Long candidateId,
+            @RequestBody @Valid WithdrawApplicationRequest request
+    ) throws Exception {
+        return ResponseEntity.ok(service.withdraw(id, candidateId, request));
+    }
+
+
+    @PatchMapping("/{id}/star")
+    public ResponseEntity<ApplicationResponse> toggleStar(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Id") Long employerId
+    ) throws Exception {
+        return ResponseEntity.ok(service.toggleStar(id, employerId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteApplication(@PathVariable Long id,
+                                                         @RequestHeader("X-User-Id") Long candidateId) throws Exception {
+        service.deleteApplication(id, candidateId);
+        return ResponseEntity.ok(new ApiResponse("Application Deleted Successfully", true));
+    }
 
 }
