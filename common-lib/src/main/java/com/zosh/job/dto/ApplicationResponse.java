@@ -38,7 +38,7 @@ public class ApplicationResponse {
     //TODO
     //private List<ApplicationStatusHistoryResponse> statusHistory;
     // private List<InterviewResponse> interviews;
-    //private List<ApplicationNoteResponse> notes;
+    private List<ApplicationNoteResponse> notes;
 
     private LocalDateTime withdrawnAt;
     private String withdrawnReason;
