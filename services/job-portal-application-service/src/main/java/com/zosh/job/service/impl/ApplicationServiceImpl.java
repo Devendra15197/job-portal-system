@@ -7,9 +7,11 @@ import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.mapper.ApplicationMapper;
 import com.zosh.job.modal.Application;
+import com.zosh.job.modal.ApplicationNote;
 import com.zosh.job.payload.CompanyApplicationFilterRequest;
 import com.zosh.job.payload.CreateApplicationRequest;
 import com.zosh.job.payload.WithdrawApplicationRequest;
+import com.zosh.job.repository.ApplicationNoteRepository;
 import com.zosh.job.repository.ApplicationRepository;
 import com.zosh.job.repository.ApplicationSpecification;
 import com.zosh.job.service.ApplicationService;
@@ -24,6 +26,7 @@ import java.util.List;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository repository;
+    private final ApplicationNoteRepository applicationNoteRepository;
 
     @Override
     public ApplicationResponse createApplication(Long candidateId, CreateApplicationRequest request) throws Exception {
@@ -134,7 +137,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         JobResponse job = JobResponse.builder().id(application.getJobId()).build();
         CompanyResponse company = CompanyResponse.builder().id(application.getCompanyId()).build();
         UserResponse candidate = UserResponse.builder().id(application.getCandidateId()).build();
-        return ApplicationMapper.toResponse(application, job, company, candidate);
+
+        List<ApplicationNote> notes = applicationNoteRepository.findByApplicationId(application.getId());
+
+        return ApplicationMapper.toResponse(application, notes, job, company, candidate);
     }
 
 
