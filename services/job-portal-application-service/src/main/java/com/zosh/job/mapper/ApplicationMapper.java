@@ -1,5 +1,6 @@
 package com.zosh.job.mapper;
 
+import com.zosh.job.domain.ApplicationStatus;
 import com.zosh.job.dto.ApplicationNoteResponse;
 import com.zosh.job.dto.ApplicationResponse;
 import com.zosh.job.dto.JobResponse;
@@ -8,6 +9,8 @@ import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.modal.Application;
 import com.zosh.job.modal.ApplicationNote;
 import com.zosh.job.payload.CreateApplicationRequest;
+
+import java.util.List;
 
 public class ApplicationMapper {
 
@@ -20,6 +23,7 @@ public class ApplicationMapper {
                 .companyId(companyId)
                 .employerId(employerId)
                 .resumeId(request.getResumeId())
+                .status(ApplicationStatus.PENDING)
                 .coverLetter(request.getCoverLetter())
                 .expectedSalary(request.getExpectedSalary())
                 .availableFrom(request.getAvailableFrom())
@@ -27,7 +31,7 @@ public class ApplicationMapper {
 
     }
 
-    public static ApplicationResponse toResponse(Application application, JobResponse job, CompanyResponse company, UserResponse candidate) {
+    public static ApplicationResponse toResponse(Application application, List<ApplicationNote> notes, JobResponse job, CompanyResponse company, UserResponse candidate) {
         return ApplicationResponse.builder()
                 .id(application.getId())
                 .candidate(candidate)
@@ -40,6 +44,7 @@ public class ApplicationMapper {
                 .expectedSalary(application.getExpectedSalary())
                 .availableFrom(application.getAvailableFrom())
                 .isStarred(application.getIsStarred())
+                .notes(notes.stream().map(ApplicationMapper::toNoteResponse).toList())
                 .withdrawnAt(application.getWithdrawnAt())
                 .appliedAt(application.getAppliedAt())
                 .updatedAt(application.getUpdatedAt())
