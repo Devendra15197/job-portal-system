@@ -19,7 +19,7 @@ public class ApplicationNoteController {
 
     private final ApplicationNoteService applicationNoteService;
 
-    @PostMapping
+    @PostMapping("/{applicationId}")
     public ResponseEntity<ApplicationNoteResponse> addNote(
             @PathVariable Long applicationId,
             @RequestHeader("X-User-Id") Long employerId,
