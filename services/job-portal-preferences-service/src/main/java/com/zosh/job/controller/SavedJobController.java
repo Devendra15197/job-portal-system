@@ -40,7 +40,7 @@ public class SavedJobController {
         return ResponseEntity.status(HttpStatus.OK).body(savedJobService.isSaved(candidateId, jobId));
     }
 
-    @DeleteMapping("{/savedJobId}")
+    @DeleteMapping("/{savedJobId}")
     public ResponseEntity<ApiResponse> deleteSavedJob(
             @RequestHeader("X-User-Id") Long candidateId,
             @PathVariable Long savedJobId
