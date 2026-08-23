@@ -17,6 +17,7 @@
 
     <modules>
         <module>job-portal-service-registry</module>
+        <module>job-portal-config-server</module>
     </modules>
 
 </project>
