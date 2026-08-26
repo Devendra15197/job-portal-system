@@ -1,17 +1,29 @@
 package com.zosh.job.config;
 
+import com.zosh.job.jwt.JwtConstant;
+import com.zosh.job.jwt.JwtUtil;
 import org.springframework.cloud.gateway.server.mvc.filter.LoadBalancerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
 
 @Configuration
 public class RouteConfig {
+
+    private final JwtUtil jwtUtil;
+
+    private RouteConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Bean
     public RouterFunction<ServerResponse> authRoutes() {
         return GatewayRouterFunctions.route("auth-routes")
@@ -80,5 +92,25 @@ public class RouteConfig {
                 .build();
     }
 
+    private ServerRequest jwtAuthFilter(ServerRequest request) {
+        String authHeader = request.headers().firstHeader(JwtConstant.JWT_HEADER);
+        if (authHeader != null || !authHeader.startsWith(JwtConstant.TOKEN_PREFIX)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "missing or invalid authorization token");
+        }
+        String token = authHeader.substring(JwtConstant.TOKEN_PREFIX.length());
+
+        if (!jwtUtil.isTokenValid(token))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid or expired JWT token");
+
+        String email = jwtUtil.extractEmail(token);
+        String authorities = jwtUtil.extractAuthorities(token);
+        Long userId = jwtUtil.extractUserIds(token);
+
+        return ServerRequest.from(request)
+                .header("X-User-Id", String.valueOf(userId))
+                .header("X-User-Email", email)
+                .header("X-User-Role", authorities)
+                .build();
+    }
 
 }
