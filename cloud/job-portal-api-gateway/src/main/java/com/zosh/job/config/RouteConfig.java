@@ -37,6 +37,8 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("admin-routes")
                 .route(RequestPredicates.path("/api/admin/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-user-service"))
+                .before(this::jwtAuthFilter)
+                //.before(request -> required)
                 .build();
     }
 
@@ -45,6 +47,7 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("user-service-routes")
                 .route(RequestPredicates.path("/api/users/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-user-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
@@ -53,6 +56,7 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("company-service-routes")
                 .route(RequestPredicates.path("/api/companies/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-company-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
@@ -65,6 +69,7 @@ public class RouteConfig {
                                 .or(RequestPredicates.path("/api/job-tags/**")),
                         HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-job-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
@@ -73,6 +78,7 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("application-service-routes")
                 .route(RequestPredicates.path("/api/applications/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-application-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
@@ -81,6 +87,7 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("resume-service-routes")
                 .route(RequestPredicates.path("/api/resumes/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-resume-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
@@ -89,6 +96,7 @@ public class RouteConfig {
         return GatewayRouterFunctions.route("preferences-service-routes")
                 .route(RequestPredicates.path("/api/preferences/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-preferences-service"))
+                .before(this::jwtAuthFilter)
                 .build();
     }
 
