@@ -58,5 +58,5 @@ public class CompanyResponse {
     private LocalDateTime updatedAt;
     private LocalDateTime verifiedAt;
 
-            private boolean isVerified;
+    private Boolean isVerified;
 }
