@@ -20,7 +20,7 @@ public class RouteConfig {
 
     private final JwtUtil jwtUtil;
 
-    private RouteConfig(JwtUtil jwtUtil) {
+    public RouteConfig(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 
@@ -38,8 +38,16 @@ public class RouteConfig {
                 .route(RequestPredicates.path("/api/admin/**"), HandlerFunctions.http())
                 .filter(LoadBalancerFilterFunctions.lb("job-portal-user-service"))
                 .before(this::jwtAuthFilter)
-                //.before(request -> required)
+                .before(request -> requiredRole(request, "ROLE_ADMIN"))
                 .build();
+    }
+
+    private ServerRequest requiredRole(ServerRequest request, String roleAdmin) {
+        String roles = request.headers().firstHeader("X-User-Role");
+        if (roles == null || !roles.contains(roleAdmin)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied for Role " + roleAdmin);
+        }
+        return request;
     }
 
     @Bean
@@ -102,7 +110,7 @@ public class RouteConfig {
 
     private ServerRequest jwtAuthFilter(ServerRequest request) {
         String authHeader = request.headers().firstHeader(JwtConstant.JWT_HEADER);
-        if (authHeader != null || !authHeader.startsWith(JwtConstant.TOKEN_PREFIX)) {
+        if (authHeader == null || !authHeader.startsWith(JwtConstant.TOKEN_PREFIX)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "missing or invalid authorization token");
         }
         String token = authHeader.substring(JwtConstant.TOKEN_PREFIX.length());
