@@ -1,5 +1,6 @@
 package com.zosh.job.service.impl;
 
+import com.zosh.job.client.CompanyClient;
 import com.zosh.job.domain.JobStatus;
 import com.zosh.job.dto.JobRequest;
 import com.zosh.job.dto.JobResponse;
@@ -37,10 +38,12 @@ public class JobServiceImpl implements JobService {
     private final JobCategoryService jobCategoryService;
     private final JobSkillService jobSkillService;
     private final JobTagService jobTagService;
+    private final CompanyClient companyClient;
 
     @Override
     public JobResponse createJob(Long employerId, JobRequest jobRequest) throws Exception {
 
+        CompanyResponse companyResponse = companyClient.getMyCompany(employerId);
         JobCategory category = jobCategoryService.getJobCategoryEntityById(jobRequest.getCategoryId()); // Validate category existence
 
         Set<JobSkill> skills = jobRequest.getSkillIds() != null ?
@@ -49,13 +52,12 @@ public class JobServiceImpl implements JobService {
         Set<JobTag> tags = jobRequest.getTagIds() != null ?
                 jobTagService.getJobTagsByIds(jobRequest.getTagIds()) : Collections.emptySet();
 
-        Long companyId = 1L;
         Job job = Job.builder()
                 .title(jobRequest.getTitle())
                 .description(jobRequest.getDescription())
                 .requirements(jobRequest.getRequirements())
                 .benefits(jobRequest.getBenefits())
-                .companyId(companyId)
+                .companyId(companyResponse.getId())
                 .employerId(employerId)
                 .category(category)
                 .skills(skills)
@@ -72,7 +74,7 @@ public class JobServiceImpl implements JobService {
                 .build();
 
         Job savedJob = jobRepository.save(job);
-        return convertToResponse(savedJob);
+        return convertToResponse(savedJob, companyResponse);
     }
 
 
@@ -180,11 +182,11 @@ public class JobServiceImpl implements JobService {
     }
 
     private JobResponse convertToResponse(Job savedJob) {
-        //todo: fetch company response
-        CompanyResponse companyResponse = CompanyResponse.builder()
-                .id(savedJob.getCompanyId())
-                .build();
+        CompanyResponse companyResponse = companyClient.getCompanyById(savedJob.getCompanyId());
+        return convertToResponse(savedJob, companyResponse);
+    }
 
+    private JobResponse convertToResponse(Job savedJob, CompanyResponse companyResponse) {
         return JobMapper.toJobResponse(savedJob, companyResponse);
     }
 
