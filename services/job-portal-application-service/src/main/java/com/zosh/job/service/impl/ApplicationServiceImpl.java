@@ -1,8 +1,13 @@
 package com.zosh.job.service.impl;
 
+import com.zosh.job.client.CompanyClient;
+import com.zosh.job.client.JobClient;
+import com.zosh.job.client.ResumeClient;
+import com.zosh.job.client.UserClient;
 import com.zosh.job.domain.ApplicationStatus;
 import com.zosh.job.dto.ApplicationResponse;
 import com.zosh.job.dto.JobResponse;
+import com.zosh.job.dto.ResumeResponse;
 import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.dto.response.UserResponse;
 import com.zosh.job.mapper.ApplicationMapper;
@@ -27,6 +32,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository repository;
     private final ApplicationNoteRepository applicationNoteRepository;
+    private final JobClient jobClient;
+    private final ResumeClient resumeClient;
+    private final CompanyClient companyClient;
+    private final UserClient userClient;
+
 
     @Override
     public ApplicationResponse createApplication(Long candidateId, CreateApplicationRequest request) throws Exception {
@@ -34,12 +44,16 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new Exception("You have already applied to this application");
         }
 
-        Long companyId = 1L;
-        Long employerId = 1L;
+        JobResponse jobResponse = jobClient.getJobById(request.getJobId());
+        Long companyId = jobResponse.getCompany().getId();
+        Long employerId = jobResponse.getEmployerId();
+
         //fetch job
         //fetch resume
         Application application = ApplicationMapper.toEntity(request, candidateId, companyId, employerId);
         Application savedApplication = repository.save(application);
+
+        ResumeResponse resumeResponse = resumeClient.getResumeById(request.getResumeId(), candidateId);
 
         //todo: AI Screening
         return buildFullResponse(savedApplication);
@@ -67,8 +81,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public List<ApplicationResponse> getApplicationsForCompany(Long userId, CompanyApplicationFilterRequest filter) {
 
-        //TODO: Fetch company
-        Long companyId = 1L;
+        Long companyId = companyClient.getMyCompany(userId).getId();
 
         Sort sort = buildSort(filter.getSortBy());
         return repository.findAll(ApplicationSpecification.forCompanyWithFilters(
@@ -133,10 +146,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     public ApplicationResponse buildFullResponse(Application application) {
 
-        //TODO
-        JobResponse job = JobResponse.builder().id(application.getJobId()).build();
-        CompanyResponse company = CompanyResponse.builder().id(application.getCompanyId()).build();
-        UserResponse candidate = UserResponse.builder().id(application.getCandidateId()).build();
+        JobResponse job = jobClient.getJobById(application.getJobId());
+        CompanyResponse company = companyClient.getCompanyById(application.getCompanyId());
+        UserResponse candidate = userClient.getUserById(application.getCandidateId());
 
         List<ApplicationNote> notes = applicationNoteRepository.findByApplicationId(application.getId());
 

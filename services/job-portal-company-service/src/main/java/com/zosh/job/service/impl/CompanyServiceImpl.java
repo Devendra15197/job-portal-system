@@ -96,7 +96,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponse getMyCompany(Long ownerId) throws Exception {
         Company company = companyRespository.findByOwnerId(ownerId);
         if (company == null) {
-            throw new Exception("Company not found with ownerId" + ownerId);
+            throw new Exception("Company not found with ownerId " + ownerId);
         }
         return CompanyMapper.toResponse(company);
     }
