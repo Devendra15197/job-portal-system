@@ -52,12 +52,14 @@ public class JobServiceImpl implements JobService {
         Set<JobTag> tags = jobRequest.getTagIds() != null ?
                 jobTagService.getJobTagsByIds(jobRequest.getTagIds()) : Collections.emptySet();
 
+        CompanyResponse company = companyClient.getMyCompany(employerId);
+        Long companyId = company.getId();
         Job job = Job.builder()
                 .title(jobRequest.getTitle())
                 .description(jobRequest.getDescription())
                 .requirements(jobRequest.getRequirements())
                 .benefits(jobRequest.getBenefits())
-                .companyId(companyResponse.getId())
+                .companyId(companyId)
                 .employerId(employerId)
                 .category(category)
                 .skills(skills)
