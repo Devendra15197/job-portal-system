@@ -2,13 +2,12 @@ package com.zosh.job.client;
 
 import com.zosh.job.dto.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "JOB-PORTAL-USER-SERVICE")
+@FeignClient(name = "job-portal-user-service")
 public interface UserClient {
 
-    @GetMapping("/{userId}")
-    UserResponse getUserById(@PathVariable Long userId);
+    @GetMapping("/api/users/{userId}")
+    UserResponse getUserById(@PathVariable("userId") Long userId);
 }
