@@ -48,12 +48,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         Long companyId = jobResponse.getCompany().getId();
         Long employerId = jobResponse.getEmployerId();
 
-        //fetch job
-        //fetch resume
+        ResumeResponse resume = resumeClient.getResumeById(request.getResumeId(), candidateId);
         Application application = ApplicationMapper.toEntity(request, candidateId, companyId, employerId);
         Application savedApplication = repository.save(application);
 
-        ResumeResponse resumeResponse = resumeClient.getResumeById(request.getResumeId(), candidateId);
 
         //todo: AI Screening
         return buildFullResponse(savedApplication);
