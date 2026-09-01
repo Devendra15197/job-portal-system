@@ -9,6 +9,7 @@
         <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
 
+
     <artifactId>job-portal-ai-service</artifactId>
     <name>job-portal-ai-service</name>
     <description>AI Service for Job Portal</description>
