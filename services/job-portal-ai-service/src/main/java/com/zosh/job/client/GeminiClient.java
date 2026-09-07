@@ -29,7 +29,8 @@ public class GeminiClient {
             String text = response.text();
             return text;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get response from Gemini: " + e.getMessage());
+            // preserve the original exception as the cause so we get the full stacktrace in logs
+            throw new RuntimeException("Failed to get response from Gemini: " + e.getMessage(), e);
         }
     }
 }
