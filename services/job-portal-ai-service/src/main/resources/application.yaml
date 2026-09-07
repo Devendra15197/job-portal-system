@@ -8,7 +8,7 @@ spring:
 
 gemini:
   api:
-    key: AQ.Ab8RN6K6OBT7ced17nqezp-Evh36B9Ol3wcvv3aHp9sVYYsDrg
-    model: gemini-2.5-flash-lite
+    key: AQ.Ab8RN6L-vyR2t_KmQqmhA-ITVbHF3FjruCT0txV6D3ixSxYEgA
+    model: gemini-3.5-flash-lite
     max-output-tokens: 2048
     temperature: 0.7
