@@ -16,8 +16,10 @@ public class AiServiceController {
     private final GeminiClient geminiClient;
 
     @GetMapping("/{prompt}")
-    public ResponseEntity<String> testAi(@PathVariable String prompt) {
-        String generatedText = geminiClient.generateText(prompt);
+    public ResponseEntity<String> testAi(@PathVariable String prompt) throws Exception {
+
+        String systemInstruction = "You are a helpful assistant that provides concise and accurate responses.";
+        String generatedText = geminiClient.generateText(systemInstruction, prompt);
         return ResponseEntity.ok(generatedText);
     }
 
