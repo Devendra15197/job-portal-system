@@ -18,6 +18,7 @@ public class AiServiceController {
     @GetMapping("/{prompt}")
     public ResponseEntity<String> testAi(@PathVariable String prompt) throws Exception {
 
+        //TODO: Add system instruction to the prompt to improve the quality of the response
         String systemInstruction = "You are a helpful assistant that provides concise and accurate responses.";
         String generatedText = geminiClient.generateText(systemInstruction, prompt);
         return ResponseEntity.ok(generatedText);
