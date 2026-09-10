@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiServiceController {
     private final GeminiClient geminiClient;
 
+
     @GetMapping("/{prompt}")
     public ResponseEntity<String> testAi(@PathVariable String prompt) throws Exception {
 
