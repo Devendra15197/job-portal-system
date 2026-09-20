@@ -2,7 +2,6 @@ package com.zosh.job.controller;
 
 import com.zosh.job.client.GeminiClient;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,7 @@ public class AiServiceController {
                 
                 Your role is strictly limited to helping users with job-related tasks only.
                 
-                You can help with:
+                You can help with:`
                 - job search and job recommendations
                 - resume and CV guidance
                 - interview preparation
