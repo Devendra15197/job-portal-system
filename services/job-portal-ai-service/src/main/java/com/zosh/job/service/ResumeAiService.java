@@ -105,4 +105,5 @@ public class ResumeAiService {
         return WorkExperienceBulletsResponse.builder().build();
     }
 
+
 }
