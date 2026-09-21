@@ -52,4 +52,6 @@ public class GeminiClient {
         }
         return builder.build();
     }
+
+    //TODO: Add a method to generate JSON response from Gemini API
 }
