@@ -1,10 +1,7 @@
 package com.zosh.job.service;
 
 import com.zosh.job.client.GeminiClient;
-import com.zosh.job.payload.AiTextResponse;
-import com.zosh.job.payload.ResumeSummaryRequest;
-import com.zosh.job.payload.WorkExperienceBulletsRequest;
-import com.zosh.job.payload.WorkExperienceBulletsResponse;
+import com.zosh.job.payload.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -102,8 +99,75 @@ public class ResumeAiService {
                 request.getRawDescription(),
                 request.getAchievementsHint() != null ? request.getAchievementsHint() : "N/A"
         );
-        return WorkExperienceBulletsResponse.builder().build();
+        return geminiClient.generateJson(SYSTEM_PROMPT, prompt, WorkExperienceBulletsResponse.class);
     }
 
+    public CareerFeedbackResponse getCareerFeedback(CareerFeedbackRequest request) throws Exception {
+        // Implementation for generating career feedback
+        String prompt = """     
+                      Analyze this resume and deliver an honest, actionable career feedback report.
+                
+                      Target Job Title (if provided): %s
+                      Resume Content:
+                      %s
+                
+                      Return ONLY valid JSON in this exact structure:
+                      {
+                        "profileStrength": 65,
+                        "shortlistingIssues": ["Reason 1 why recruiters are skipping this profile", "Reason 2", "Reason 3"],
+                        "improvements": [
+                          {"area": "Skills | Summary | Experience | Education | Projects | General", "issue": "What specifically is weak or missing", "action": "Concrete step the candidate should take", "priority": "HIGH | MEDIUM | LOW"}
+                        ],
+                        "targetJobs": [
+                          {"jobTitle": "Recommended Job Title", "reason": "Why this role suits the current profile", "skillMatch": "HIGH | MEDIUM | LOW"}
+                        ],
+                        "overallSummary": "2-3 sentences of honest, encouraging career advice"
+                      }
+                
+                      Rules:
+                      - profileStrength: integer 0-100 reflecting overall job market readiness
+                      - shortlistingIssues: 3-5 candid reasons a recruiter would skip this resume
+                      - improvements: 4-6 items ordered by priority descending
+                      - targetJobs: 3-5 realistic job titles matching current skills and experience level
+                      - Be specific - mention actual skills, tools, or sections by name
+                """.formatted(
+                request.getTargetJobTitle() != null ? request.getTargetJobTitle() : "N/A",
+                request.getResumeContent() != null ? request.getResumeContent() : "N/A"
+        );
+        return geminiClient.generateJson(SYSTEM_PROMPT, prompt, CareerFeedbackResponse.class);
+    }
+
+    public ResumeImprovementResponse getResumeImprovementTips(ResumeImprovementRequest request) throws Exception {
+        // Implementation for generating resume improvement tips
+        String prompt = """
+                Analyze this resume and provide specific, actionable improvement suggestions.
+                
+                Target Job Title: %s
+                
+                Resume Content:
+                %s
+                
+                {
+                  "overallScore": 72,
+                  "improvements": [
+                    {
+                      "section": "Summary or Experience or Skills or Education or General",
+                      "issue": "What is wrong or missing",
+                      "strengths": ["what is already good about this resume"],
+                      "suggestion": "Specific action to fix it",
+                      "priority": "High or Medium or Low"
+                    }
+                  ],
+                  "summary": "2-sentence overall assessment"
+                }
+                
+                Provide 4-6 specific improvements. Score should be 0-100.
+                """.formatted(
+                request.getTargetJobTitle() != null ? request.getTargetJobTitle() : "N/A",
+                request.getResumeContent() != null ? request.getResumeContent() : "N/A"
+
+                );
+        return geminiClient.generateJson(SYSTEM_PROMPT, prompt, ResumeImprovementResponse.class);
+    }
 
 }
