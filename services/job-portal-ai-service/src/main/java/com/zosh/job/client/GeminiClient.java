@@ -1,5 +1,6 @@
 package com.zosh.job.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
@@ -15,13 +16,32 @@ public class GeminiClient {
 
     private final Client genaiClient;
     private final GeminiProperties geminiProperties;
+    private final ObjectMapper objectMapper;
 
     public String generateText(String systemInstruction, String prompt) throws Exception {
         return generateText(systemInstruction, prompt, geminiProperties.getTemperature(), geminiProperties.getMaxOutputTokens());
     }
 
+    public <T> T generateJson(String systemInstruction, String prompt, Class<T> responseType) throws Exception {
+        return callJson(systemInstruction, prompt, responseType);
+    }
+
     public String generateText(String systemInstruction, String prompt, double temperature, int maxTokens) throws Exception {
         return callText(systemInstruction, prompt, (float) temperature, maxTokens);
+    }
+
+    private <T> T callJson(String systemInstruction, String prompt, Class<T> responseType) throws Exception {
+        try {
+            GenerateContentConfig config = buildConfig(systemInstruction, 0.3f, geminiProperties.getMaxOutputTokens(), true);
+
+            GenerateContentResponse response = genaiClient.models.generateContent(
+                    geminiProperties.getModel(), prompt, config);
+            String text = response.text();
+            return objectMapper.readValue(text, responseType);
+        } catch (Exception e) {
+            // preserve the original exception as the cause so we get the full stacktrace in logs
+            throw new RuntimeException("Failed to get response from Gemini: " + e.getMessage(), e);
+        }
     }
 
     private String callText(String systemInstruction, String prompt, float temperature, int maxTokens) throws Exception {
