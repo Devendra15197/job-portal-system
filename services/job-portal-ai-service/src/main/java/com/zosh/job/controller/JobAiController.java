@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class JobAiController {
     private final JobAiService jobAiService;
 
+
     @PostMapping("/describe")
     public ResponseEntity<AiTextResponse> generateJobDescription(
             @Valid @RequestBody JobDescriptionRequest jobDescriptionRequest
