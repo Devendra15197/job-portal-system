@@ -1,9 +1,7 @@
 package com.zosh.job.service;
 
 import com.zosh.job.client.GeminiClient;
-import com.zosh.job.payload.AiTextResponse;
-import com.zosh.job.payload.CoverLetterRequest;
-import com.zosh.job.payload.ScreeningScoreRequest;
+import com.zosh.job.payload.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -119,7 +117,41 @@ public class ApplicationAiService {
         );
 
         return geminiClient.generateJson(SYSTEM_PROMPT, userPrompt, ScreeningScoreResponse.class);
+    }
 
+    public SkillGapResponse analyzeSkillGap(SkillGapRequest request) throws Exception {
+        String requiredSkills = request.getRequiredSkills() != null ? String.join(", ", request.getRequiredSkills()) : "Not provided";
+        String candidateSkills = request.getCandidateSkills() != null ? String.join(", ", request.getCandidateSkills()) : "Not provided";
 
+        String userPrompt = String.format(
+                """
+                        Analyze the skill gap for this candidate based on the job requirements.
+                        
+                        Job Title: %s
+                        Candidate's current Skills: %s
+                        Skills Required for a job: %s
+                        
+                        
+                        {
+                            "matchedSkills": ["Java", "Spring Boot"],
+                            "missingSkills": ["AWS", "Docker"],
+                            "partialMatch": ["Kubernetes"],
+                            "prioritySkillsToLearn": ["AWS", "Docker"],
+                            "learningRecommendations": [
+                            {"skill": "skill name", "why": "reason to learn this skill", "howToLearn": "recommended learning resources or methods"}
+                            ]
+                            "overallReadiness": "Overall readiness assessment based on the skill gap analysis",
+                            "summary": "2-3 sentence summary of the skill gap analysis, highlighting strengths and areas for improvement."
+                        }
+                        
+                        Provide a clear and concise analysis of the skill gap, including missing skills, recommended learning resources, and actionable advice for improvement.
+                        """.formatted(
+                        request.getJobTitle() != null ? request.getJobTitle() : "Not provided",
+                        candidateSkills,
+                        requiredSkills
+                )
+        );
+
+        return geminiClient.generateJson(SYSTEM_PROMPT, userPrompt, SkillGapResponse.class);
     }
 }
