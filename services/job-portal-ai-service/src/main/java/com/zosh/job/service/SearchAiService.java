@@ -51,5 +51,6 @@ public class SearchAiService {
                 """.formatted(request.getQuery());
 
         return geminiClient.generateJson(SYSTEM_PROMPT, prompt, SearchEnhanceResponse.class);
+
     }
 }
