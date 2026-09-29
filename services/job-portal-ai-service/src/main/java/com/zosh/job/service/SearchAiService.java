@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchAiService {
 
-
     private final GeminiClient geminiClient;
 
     private static final String SYSTEM_PROMPT = """
