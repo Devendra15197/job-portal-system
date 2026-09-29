@@ -1,10 +1,12 @@
 package com.zosh.job.payload;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 public class SearchEnhanceResponse {
     private List<String> keywords;
     private List<String> locations;
@@ -13,4 +15,5 @@ public class SearchEnhanceResponse {
     private List<String> experienceLevels;
     private Long minSalary;
     private List<String> skills;
+
 }
