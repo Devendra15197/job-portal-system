@@ -1,6 +1,8 @@
 package com.zosh.job.service;
 
 import com.zosh.job.client.GeminiClient;
+import com.zosh.job.payload.JobAlertSuggestRequest;
+import com.zosh.job.payload.JobAlertSuggestResponse;
 import com.zosh.job.payload.SearchEnhanceRequest;
 import com.zosh.job.payload.SearchEnhanceResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +48,42 @@ public class SearchAiService {
                 - Use null for minSalary if not mentioned
                 - Use empty arrays [] for fields not mentioned
                 - "freshers" or "entry level" → ENTRY experience level
-                - "senior" or "experienced" → SENIOR experience level
+                - "senior" or "5+ years" → SENIOR experience level
                 - "wfh" or "work from home" → REMOTE work mode
                 """.formatted(request.getQuery());
 
         return geminiClient.generateJson(SYSTEM_PROMPT, prompt, SearchEnhanceResponse.class);
 
+    }
+
+    public JobAlertSuggestResponse suggestJobAlerts(JobAlertSuggestRequest request) throws Exception {
+        String skills = request.getSkills() != null ? String.join(", ", request.getSkills()) : "Not Provided";
+        String previousJobTitles = request.getPreviousJobTitles() != null ? String.join(", ", request.getPreviousJobTitles()) : "Not Provided";
+        String educations = request.getEducations() != null ? String.join(", ", request.getEducations()) : "Not Provided";
+        String prompt = """
+                Based on this candidate's profile, suggest optimal job alert criteria to find the best matching jobs.
+                
+                Candidate Profile:
+                - Skills: %s
+                - Experience Level: %s
+                - Previous Job Titles: %s
+                - Educations: %s
+                
+                Valid Job Types: FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE
+                Valid Work Modes: REMOTE, HYBRID, ON_SITE
+                Valid Experience Levels: ENTRY, MID, SENIOR, LEAD, EXECUTIVE
+                
+                {
+                    "suggestedKeywords": ["keyword1", "keyword2"],
+                    "suggestedLocations": ["city1", "city2"],
+                    "suggestedJobTypes": ["FULL_TIME"],
+                    "suggestedWorkModes": ["REMOTE", "HYBRID"],
+                    "suggestedExperienceLevels": ["ENTRY"],
+                    "suggestedIndustries": ["industry1", "industry2"],
+                    "reasoning": "Explain why these suggestions are optimal for the candidate."
+                }
+                """.formatted(skills, request.getExperienceLevel(), previousJobTitles, educations);
+
+        return geminiClient.generateJson(SYSTEM_PROMPT, prompt, JobAlertSuggestResponse.class);
     }
 }
