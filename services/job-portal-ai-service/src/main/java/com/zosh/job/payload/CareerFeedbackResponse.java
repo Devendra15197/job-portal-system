@@ -9,7 +9,6 @@ import java.util.List;
 
 @Builder
 @Data
-@AllArgsConstructor
 public class CareerFeedbackResponse {
     private int profileStrength;
     private List<String> shortlistingIssues;
