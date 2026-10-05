@@ -15,3 +15,5 @@ public class WorkExperienceBulletsRequest {
 
     private String achievementsHint;
 }
+
+
