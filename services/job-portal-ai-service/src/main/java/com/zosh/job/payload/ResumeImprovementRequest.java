@@ -10,3 +10,6 @@ public class ResumeImprovementRequest {
 
     private String targetJobTitle;
 }
+
+
+
