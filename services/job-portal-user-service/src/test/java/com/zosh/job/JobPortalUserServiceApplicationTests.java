@@ -15,21 +15,14 @@ import com.zosh.job.service.AuthService;
 import com.zosh.job.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -37,21 +30,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 class JobPortalUserServiceApplicationTests {
 
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Mock
-    private AuthService authService;
+    private FakeAuthService authService;
 
-    @Mock
-    private UserService userService;
+    private FakeUserService userService;
 
     @BeforeEach
     void setUp() {
+        authService = new FakeAuthService();
+        userService = new FakeUserService();
         mockMvc = MockMvcBuilders.standaloneSetup(
                         new AuthController(authService),
                         new UserController(userService))
@@ -73,7 +65,7 @@ class JobPortalUserServiceApplicationTests {
         response.setMessage("User registered successfully");
         response.setUser(userResponse());
 
-        when(authService.signup(any(SignupRequest.class))).thenReturn(response);
+        authService.signupResponse = response;
 
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +75,7 @@ class JobPortalUserServiceApplicationTests {
                 .andExpect(jsonPath("$.message").value("User registered successfully"))
                 .andExpect(jsonPath("$.user.email").value("aarav.sharma@example.com"));
 
-        verify(authService).signup(any(SignupRequest.class));
+        org.junit.jupiter.api.Assertions.assertEquals("aarav.sharma@example.com", authService.signupRequest.getEmail());
     }
 
     @Test
@@ -98,7 +90,7 @@ class JobPortalUserServiceApplicationTests {
         response.setMessage("User logged in successfully");
         response.setUser(userResponse());
 
-        when(authService.login(any(LoginRequest.class))).thenReturn(response);
+        authService.loginResponse = response;
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -108,12 +100,12 @@ class JobPortalUserServiceApplicationTests {
                 .andExpect(jsonPath("$.message").value("User logged in successfully"))
                 .andExpect(jsonPath("$.user.fullName").value("Aarav Sharma"));
 
-        verify(authService).login(any(LoginRequest.class));
+        org.junit.jupiter.api.Assertions.assertEquals("aarav.sharma@example.com", authService.loginRequest.getEmail());
     }
 
     @Test
     void getProfileReturnsUserFromEmailHeader() throws Exception {
-        when(userService.getUserByEmail("aarav.sharma@example.com")).thenReturn(user());
+        userService.user = user();
 
         mockMvc.perform(get("/api/users/profile")
                         .header("X-User-Email", "aarav.sharma@example.com"))
@@ -123,7 +115,7 @@ class JobPortalUserServiceApplicationTests {
                 .andExpect(jsonPath("$.role").value("ROLE_JOB_SEEKER"))
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
 
-        verify(userService).getUserByEmail("aarav.sharma@example.com");
+        org.junit.jupiter.api.Assertions.assertEquals("aarav.sharma@example.com", userService.email);
     }
 
     @Test
@@ -138,8 +130,7 @@ class JobPortalUserServiceApplicationTests {
         response.setPhone("9000000000");
         response.setProfileImage("https://example.com/avatar.png");
 
-        when(userService.updateprofile(eq("aarav.sharma@example.com"), any(UpdateUserRequest.class)))
-                .thenReturn(response);
+        userService.userResponse = response;
 
         mockMvc.perform(post("/api/users/profile")
                         .header("X-User-Email", "aarav.sharma@example.com")
@@ -150,19 +141,18 @@ class JobPortalUserServiceApplicationTests {
                 .andExpect(jsonPath("$.phone").value("9000000000"))
                 .andExpect(jsonPath("$.profileImage").value("https://example.com/avatar.png"));
 
-        verify(userService).updateprofile(eq("aarav.sharma@example.com"), any(UpdateUserRequest.class));
+        org.junit.jupiter.api.Assertions.assertEquals("aarav.sharma@example.com", userService.email);
+        org.junit.jupiter.api.Assertions.assertEquals("Aarav S.", userService.updateUserRequest.getFullName());
     }
 
     @Test
     void getAllUsersReturnsUsers() throws Exception {
-        when(userService.getAllUsers()).thenReturn(List.of(user()));
+        userService.users = List.of(user());
 
         mockMvc.perform(get("/api/users/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].email").value("aarav.sharma@example.com"));
-
-        verify(userService).getAllUsers();
     }
 
     @Test
@@ -170,13 +160,13 @@ class JobPortalUserServiceApplicationTests {
         UserResponse response = userResponse();
         response.setStatus(UserStatus.SUSPENDED);
 
-        when(userService.suspendUser(1L)).thenReturn(response);
+        userService.userResponse = response;
 
         mockMvc.perform(patch("/api/users/{userId}/suspend", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUSPENDED"));
 
-        verify(userService).suspendUser(1L);
+        org.junit.jupiter.api.Assertions.assertEquals(1L, userService.id);
     }
 
     @Test
@@ -184,13 +174,13 @@ class JobPortalUserServiceApplicationTests {
         UserResponse response = userResponse();
         response.setStatus(UserStatus.ACTIVE);
 
-        when(userService.activateUser(1L)).thenReturn(response);
+        userService.userResponse = response;
 
         mockMvc.perform(patch("/api/users/{userId}/activate", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
 
-        verify(userService).activateUser(1L);
+        org.junit.jupiter.api.Assertions.assertEquals(1L, userService.id);
     }
 
     @Test
@@ -198,13 +188,13 @@ class JobPortalUserServiceApplicationTests {
         UserResponse response = userResponse();
         response.setStatus(UserStatus.DELETED);
 
-        when(userService.deleteUser(1L)).thenReturn(response);
+        userService.userResponse = response;
 
         mockMvc.perform(delete("/api/users/{userId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("DELETED"));
 
-        verify(userService).deleteUser(1L);
+        org.junit.jupiter.api.Assertions.assertEquals(1L, userService.id);
     }
 
     private User user() {
@@ -232,6 +222,76 @@ class JobPortalUserServiceApplicationTests {
                 .createdAt(LocalDateTime.of(2026, 1, 1, 10, 0))
                 .lastLogin(LocalDateTime.of(2026, 1, 2, 10, 0))
                 .build();
+    }
+
+    private static class FakeAuthService implements AuthService {
+        private SignupRequest signupRequest;
+        private LoginRequest loginRequest;
+        private AuthResponse signupResponse;
+        private AuthResponse loginResponse;
+
+        @Override
+        public AuthResponse signup(SignupRequest req) {
+            this.signupRequest = req;
+            return signupResponse;
+        }
+
+        @Override
+        public AuthResponse login(LoginRequest req) {
+            this.loginRequest = req;
+            return loginResponse;
+        }
+    }
+
+    private static class FakeUserService implements UserService {
+        private String email;
+        private Long id;
+        private User user;
+        private List<User> users = List.of();
+        private UserResponse userResponse;
+        private UpdateUserRequest updateUserRequest;
+
+        @Override
+        public User getUserByEmail(String email) {
+            this.email = email;
+            return user;
+        }
+
+        @Override
+        public User getUserById(Long id) {
+            this.id = id;
+            return user;
+        }
+
+        @Override
+        public List<User> getAllUsers() {
+            return users;
+        }
+
+        @Override
+        public UserResponse updateprofile(String email, UpdateUserRequest updateUserRequest) {
+            this.email = email;
+            this.updateUserRequest = updateUserRequest;
+            return userResponse;
+        }
+
+        @Override
+        public UserResponse suspendUser(Long id) {
+            this.id = id;
+            return userResponse;
+        }
+
+        @Override
+        public UserResponse activateUser(Long id) {
+            this.id = id;
+            return userResponse;
+        }
+
+        @Override
+        public UserResponse deleteUser(Long id) {
+            this.id = id;
+            return userResponse;
+        }
     }
 
 }
