@@ -13,4 +13,7 @@ public class LanguageReponse {
     private String languageName;
     private LanguageProficiency languageProficiency;
     private Integer displayOrder;
+
 }
+
+
