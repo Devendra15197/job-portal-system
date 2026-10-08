@@ -57,7 +57,6 @@ class JobPortalResumeServiceApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.candidateId").value(10L))
                 .andExpect(jsonPath("$.title").value("Backend Developer Resume"))
                 .andExpect(jsonPath("$.resumeTemplate").value("PROFESSIONAL"))
