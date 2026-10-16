@@ -46,7 +46,7 @@
                 <version>3.5.2</version>
                 <configuration>
                     <to>
-                        <image>devendra1597/job-portal-config-server:latest</image>
+                            <image>devendra1597/job-portal-config-server:latest</image>
                     </to>
                 </configuration>
             </plugin>

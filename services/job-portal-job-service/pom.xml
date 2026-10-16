@@ -109,7 +109,7 @@
                 <version>3.5.2</version>
                 <configuration>
                     <to>
-                        <image>devendra1597/job-portal-user-service:latest</image>
+                        <image>devendra1597/job-portal-job-service:latest</image>
                     </to>
                 </configuration>
             </plugin>
