@@ -8,9 +8,10 @@ spring:
     config:
       server:
         git:
-          uri: "https://github.com/Devendra15197/job-portal-config"
+          uri: "https://github.com/Devendra15197/job-portal-config.git"
           clone-on-start: true
-          default-label: main
+          default-label: master
+          timeout: 30000
 
 eureka:
   client:
