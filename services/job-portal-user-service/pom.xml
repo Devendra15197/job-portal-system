@@ -10,9 +10,7 @@
     </parent>
 
 
-    <groupId>com.zosh.job</groupId>
     <artifactId>job-portal-user-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>job-portal-user-service</name>
     <description>User Service - Auth, Profile and User Management for Job Portal</description>
 
