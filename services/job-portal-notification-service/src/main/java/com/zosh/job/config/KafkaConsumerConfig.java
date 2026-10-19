@@ -22,7 +22,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, Object> consumerFactory() {
 
         JacksonJsonDeserializer<Object> deserializer = new JacksonJsonDeserializer<>(Object.class);
-        deserializer.addTrustedPackages("com.zosh.job");
+        deserializer.addTrustedPackages("com.zosh.job.*");
         deserializer.setUseTypeHeaders(true);
 
         Map<String, Object> props = new HashMap<>();

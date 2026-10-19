@@ -10,6 +10,7 @@ import com.zosh.job.dto.JobResponse;
 import com.zosh.job.dto.ResumeResponse;
 import com.zosh.job.dto.response.CompanyResponse;
 import com.zosh.job.dto.response.UserResponse;
+import com.zosh.job.event.ApplicationEventPublisher;
 import com.zosh.job.mapper.ApplicationMapper;
 import com.zosh.job.modal.Application;
 import com.zosh.job.modal.ApplicationNote;
@@ -36,6 +37,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ResumeClient resumeClient;
     private final CompanyClient companyClient;
     private final UserClient userClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     @Override
@@ -97,13 +99,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse updateStatus(Long applicationId, Long employerId, ApplicationStatus status) throws Exception {
         Application application = getApplicationEntity(applicationId);
         assertEmployer(application, employerId);
-
+        ApplicationStatus oldStatus = application.getStatus();
         if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
             throw new Exception("You cannot update the status of a withdrawn application");
         }
 
         application.setStatus(status);
         Application savedApplication = repository.save(application);
+
+        applicationEventPublisher.publishApplicationStatusChangeEvent(application, oldStatus, status, "Your application status has been updated to " + status);
+
         return buildFullResponse(savedApplication);
     }
 
