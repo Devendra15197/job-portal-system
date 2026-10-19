@@ -1,289 +1,389 @@
+
 package com.zosh.job.html;
 
 import com.zosh.job.domain.ApplicationStatus;
 import com.zosh.job.event.ApplicationStatusChangedEvent;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+
 @Component
 public class BuildHtmlResponseForEmail {
 
+    private static final String BRAND_NAME = "JOB PORTAL";
+    private static final String NAVY = "#14243A";
+    private static final String TEXT_PRIMARY = "#172B4D";
+    private static final String TEXT_SECONDARY = "#475569";
+    private static final String BORDER = "#E2E8F0";
+    private static final String PAGE_BACKGROUND = "#F4F6F9";
+
     public String buildStatusChangeEmailHtml() {
-        return "<html>" +
-                "<body>" +
-                "<h2>Job Application Status Update</h2>" +
-                "<p>Dear Applicant,</p>" +
-                "<p>Your job application status has been updated. Please log in to your account to view the details.</p>" +
-                "<p>Best regards,<br/>Job Portal Team</p>" +
-                "</body>" +
-                "</html>";
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport"
+                          content="width=device-width, initial-scale=1.0">
+                    <title>Application Status Update</title>
+                </head>
+                <body style="margin:0;padding:0;
+                             background-color:%s;
+                             font-family:Arial,Helvetica,sans-serif;">
+                    <table role="presentation" width="100%%"
+                           cellspacing="0" cellpadding="0" border="0"
+                           style="background-color:%s;padding:36px 12px;">
+                        <tr>
+                            <td align="center">
+                                <table role="presentation" width="600"
+                                       cellspacing="0" cellpadding="0"
+                                       border="0"
+                                       style="width:100%%;max-width:600px;
+                                              background:#ffffff;
+                                              border:1px solid %s;">
+                                    <tr>
+                                        <td style="background-color:%s;
+                                                   padding:32px;">
+                                            <div style="font-size:20px;
+                                                        font-weight:bold;
+                                                        letter-spacing:1px;
+                                                        color:#ffffff;">
+                                                %s
+                                            </div>
+                                            <div style="margin-top:10px;
+                                                        font-size:13px;
+                                                        letter-spacing:1px;
+                                                        color:#E2E8F0;">
+                                                APPLICATION UPDATE
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:36px;">
+                                            <h1 style="margin:0 0 20px;
+                                                       color:%s;
+                                                       font-size:28px;
+                                                       line-height:1.4;">
+                                                Application Status Update
+                                            </h1>
+                                            <p style="margin:0 0 20px;
+                                                      color:%s;
+                                                      font-size:16px;
+                                                      line-height:1.8;">
+                                                Your job application status
+                                                has been updated. Please check
+                                                your application details.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:20px 36px;
+                                                   background:#F8FAFC;
+                                                   border-top:1px solid %s;
+                                                   color:%s;
+                                                   font-size:13px;
+                                                   line-height:1.8;">
+                                            This is an automated notification
+                                            from %s. Please do not reply
+                                            directly to this email.
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+                """.formatted(
+                PAGE_BACKGROUND,
+                PAGE_BACKGROUND,
+                BORDER,
+                NAVY,
+                BRAND_NAME,
+                TEXT_PRIMARY,
+                TEXT_SECONDARY,
+                BORDER,
+                TEXT_SECONDARY,
+                BRAND_NAME
+        );
     }
 
+    public String buildStatusChangeEmailHtml(
+            ApplicationStatusChangedEvent event) {
 
-    public String buildStatusChangeEmailHtml(ApplicationStatusChangedEvent event) {
+        if (event == null) {
+            return buildStatusChangeEmailHtml();
+        }
+
+        ApplicationStatus status = event.getNewStatus();
+
+        String headerColor = getHeaderColor(status);
+        String statusColor = getStatusColor(status);
+        String statusBackground = getStatusBackground(status);
+
         String candidateName = escapeHtml(
-                event.getCandidateName() != null
-                        ? event.getCandidateName()
-                        : "Candidate"
-        );
+                defaultIfBlank(event.getCandidateName(), "Candidate"));
 
         String jobTitle = escapeHtml(
-                event.getJobTitle() != null
-                        ? event.getJobTitle()
-                        : "Job opportunity"
-        );
+                defaultIfBlank(event.getJobTitle(), "Job opportunity"));
 
         String companyName = escapeHtml(
-                event.getCompanyName() != null
-                        ? event.getCompanyName()
-                        : "the hiring company"
-        );
+                defaultIfBlank(event.getCompanyName(), "Hiring company"));
 
-        String oldStatus = escapeHtml(
-                event.getOldStatus() != null
-                        ? event.getOldStatus().name().replace("_", " ")
-                        : "UNKNOWN"
-        );
+        String oldStatus = escapeHtml(formatStatus(event.getOldStatus()));
+        String newStatus = escapeHtml(formatStatus(status));
 
-        String newStatus = escapeHtml(
-                event.getNewStatus() != null
-                        ? event.getNewStatus().name().replace("_", " ")
-                        : "UPDATED"
-        );
+        String statusHeadline = escapeHtml(getStatusHeadline(status));
 
-        String note = event.getNote() == null
-                || event.getNote().isBlank()
-                ? ""
-                : """
-                <div style="margin-top:24px;padding:16px;
-                            background-color:#f8fafc;
-                            border-left:4px solid #6366f1;
-                            border-radius:6px;">
-                    <p style="margin:0 0 8px;color:#475569;
-                              font-size:13px;font-weight:600;">
-                        NOTE FROM THE EMPLOYER
-                    </p>
-                    <p style="margin:0;color:#334155;
-                              font-size:14px;line-height:1.6;">
-                        %s
-                    </p>
-                </div>
-                """.formatted(escapeHtml(event.getNote()));
+        String applicationId = escapeHtml(
+                event.getApplicationId() == null
+                        ? "Not provided"
+                        : String.valueOf(event.getApplicationId()));
 
-        String statusColor = getStatusColor(event.getNewStatus());
-
-        String changedAt = event.getChangedAt() == null
-                ? ""
-                : """
-                <p style="margin:8px 0 0;color:#64748b;
-                          font-size:12px;">
-                    Updated on: %s
-                </p>
-                """.formatted(
-                escapeHtml(event.getChangedAt().toString()
-                        .replace("T", " "))
-        );
+        String noteHtml = buildNoteHtml(event.getNote());
+        String changedAtHtml = buildChangedAtHtml(event.getChangedAt());
 
         return """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport"
-                  content="width=device-width, initial-scale=1.0">
-            <title>Application Status Update</title>
-        </head>
-        <body style="margin:0;padding:0;background-color:#f1f5f9;
-                     font-family:Arial,Helvetica,sans-serif;">
-
-            <table role="presentation" width="100%%" cellpadding="0"
-                   cellspacing="0" border="0"
-                   style="background-color:#f1f5f9;padding:32px 12px;">
-                <tr>
-                    <td align="center">
-
-                        <table role="presentation" width="600"
-                               cellpadding="0" cellspacing="0" border="0"
-                               style="max-width:600px;width:100%%;
-                                      background-color:#ffffff;
-                                      border-radius:12px;
-                                      overflow:hidden;">
-
-                            <!-- Header -->
-                            <tr>
-                                <td style="background-color:#312e81;
-                                           padding:28px 32px;">
-                                    <p style="margin:0;color:#c7d2fe;
-                                              font-size:12px;
-                                              font-weight:700;
-                                              letter-spacing:2px;">
-                                        JOB PORTAL
-                                    </p>
-                                    <h1 style="margin:12px 0 0;
-                                               color:#ffffff;
-                                               font-size:25px;
-                                               line-height:1.3;">
-                                        Application Status Update
-                                    </h1>
-                                </td>
-                            </tr>
-
-                            <!-- Main content -->
-                            <tr>
-                                <td style="padding:32px;">
-
-                                    <p style="margin:0 0 16px;
-                                              color:#0f172a;
-                                              font-size:16px;">
-                                        Hi <strong>%s</strong>,
-                                    </p>
-
-                                    <p style="margin:0 0 24px;
-                                              color:#475569;
-                                              font-size:14px;
-                                              line-height:1.7;">
-                                        There's an update regarding your
-                                        job application. Here are the
-                                        details for your reference.
-                                    </p>
-
-                                    <!-- Job details -->
-                                    <table role="presentation" width="100%%"
-                                           cellpadding="0" cellspacing="0"
-                                           border="0"
-                                           style="background-color:#f8fafc;
-                                                  border:1px solid #e2e8f0;
-                                                  border-radius:8px;">
-                                        <tr>
-                                            <td style="padding:20px;">
-
-                                                <p style="margin:0 0 6px;
-                                                          color:#64748b;
-                                                          font-size:12px;
-                                                          font-weight:600;
-                                                          text-transform:uppercase;">
-                                                    Position
-                                                </p>
-
-                                                <h2 style="margin:0 0 6px;
-                                                           color:#0f172a;
-                                                           font-size:20px;">
-                                                    %s
-                                                </h2>
-
-                                                <p style="margin:0;
-                                                          color:#475569;
-                                                          font-size:14px;">
-                                                    %s
-                                                </p>
-
-                                                <p style="margin:12px 0 0;
-                                                          color:#64748b;
-                                                          font-size:12px;">
-                                                    Application ID: #%s
-                                                </p>
-
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                    <!-- Status change -->
-                                    <div style="margin-top:28px;">
-                                        <p style="margin:0 0 14px;
-                                                  color:#0f172a;
-                                                  font-size:15px;
-                                                  font-weight:700;">
-                                            Status change
-                                        </p>
-
-                                        <table role="presentation"
-                                               cellpadding="0"
-                                               cellspacing="0"
-                                               border="0">
-                                            <tr>
-                                                <td style="padding:10px 12px;
-                                                           background-color:#e2e8f0;
-                                                           border-radius:6px;
-                                                           color:#334155;
-                                                           font-size:12px;
-                                                           font-weight:700;">
-                                                    %s
-                                                </td>
-                                                <td style="padding:0 12px;
-                                                           color:#94a3b8;
-                                                           font-size:20px;">
-                                                    &rarr;
-                                                </td>
-                                                <td style="padding:10px 12px;
-                                                           background-color:%s;
-                                                           border-radius:6px;
-                                                           color:#ffffff;
-                                                           font-size:12px;
-                                                           font-weight:700;">
-                                                    %s
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-
-                                    %s
-
-                                    %s
-
-                                    <p style="margin:28px 0 0;
-                                              color:#475569;
-                                              font-size:14px;
-                                              line-height:1.7;">
-                                        Thank you for using our job portal.
-                                        We wish you the best in your
-                                        career journey.
-                                    </p>
-
-                                </td>
-                            </tr>
-
-                            <!-- Footer -->
-                            <tr>
-                                <td style="padding:20px 32px;
-                                           background-color:#f8fafc;
-                                           border-top:1px solid #e2e8f0;">
-                                    <p style="margin:0;
-                                              color:#64748b;
-                                              font-size:12px;
-                                              line-height:1.6;">
-                                        This is an automated notification
-                                        about your job application.
-                                        Please do not reply directly to
-                                        this email.
-                                    </p>
-                                    <p style="margin:10px 0 0;
-                                              color:#94a3b8;
-                                              font-size:11px;">
-                                        &copy; Job Portal
-                                    </p>
-                                </td>
-                            </tr>
-
-                        </table>
-
-                    </td>
-                </tr>
-            </table>
-
-        </body>
-        </html>
-        """.formatted(
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport"
+                          content="width=device-width, initial-scale=1.0">
+                    <title>Application Status Update</title>
+                </head>
+                <body style="margin:0;padding:0;
+                             background-color:%s;
+                             font-family:Arial,Helvetica,sans-serif;">
+                    <table role="presentation" width="100%%"
+                           cellspacing="0" cellpadding="0" border="0"
+                           style="background-color:%s;padding:36px 12px;">
+                        <tr>
+                            <td align="center">
+                                <table role="presentation" width="600"
+                                       cellspacing="0" cellpadding="0"
+                                       border="0"
+                                       style="width:100%%;max-width:600px;
+                                              background:#ffffff;
+                                              border:1px solid %s;">
+                                    <!-- Status-dependent header -->
+                                    <tr>
+                                        <td style="background-color:%s;
+                                                   padding:32px;">
+                                            <div style="font-size:20px;
+                                                        font-weight:bold;
+                                                        letter-spacing:1px;
+                                                        color:#ffffff;">
+                                                %s
+                                            </div>
+                                            <div style="margin-top:10px;
+                                                        font-size:13px;
+                                                        letter-spacing:1px;
+                                                        color:#E2E8F0;">
+                                                APPLICATION UPDATE
+                                            </div>
+                                        </td>
+                                    </tr>
+                
+                                    <!-- Main content -->
+                                    <tr>
+                                        <td style="padding:36px;">
+                                            <h1 style="margin:0 0 16px;
+                                                       color:%s;
+                                                       font-size:28px;
+                                                       line-height:1.4;">
+                                                %s
+                                            </h1>
+                
+                                            <p style="margin:0 0 28px;
+                                                      color:%s;
+                                                      font-size:16px;
+                                                      line-height:1.8;">
+                                                Hi <strong>%s</strong>,
+                                                <br><br>
+                                                There has been an update to
+                                                your job application. Here
+                                                are the details.
+                                            </p>
+                
+                                            <!-- Application details -->
+                                            <table role="presentation"
+                                                   width="100%%"
+                                                   cellspacing="0"
+                                                   cellpadding="0"
+                                                   border="0"
+                                                   style="border:1px solid %s;">
+                                                <tr>
+                                                    <td style="padding:24px;">
+                                                        <div style="font-size:13px;
+                                                                    font-weight:bold;
+                                                                    letter-spacing:1px;
+                                                                    color:%s;">
+                                                            APPLICATION DETAILS
+                                                        </div>
+                
+                                                        <div style="margin-top:14px;
+                                                                    color:%s;
+                                                                    font-size:22px;
+                                                                    line-height:1.5;
+                                                                    font-weight:bold;">
+                                                            %s
+                                                        </div>
+                
+                                                        <div style="margin-top:6px;
+                                                                    color:%s;
+                                                                    font-size:16px;
+                                                                    line-height:1.6;">
+                                                            %s
+                                                        </div>
+                
+                                                        <div style="height:1px;
+                                                                    background-color:%s;
+                                                                    margin:24px 0;">
+                                                        </div>
+                
+                                                        <table role="presentation"
+                                                               width="100%%"
+                                                               cellspacing="0"
+                                                               cellpadding="0"
+                                                               border="0">
+                                                            <tr>
+                                                                <td style="padding:10px 0;
+                                                                           color:%s;
+                                                                           font-size:15px;">
+                                                                    Previous status
+                                                                </td>
+                                                                <td align="right"
+                                                                    style="padding:10px 0;
+                                                                           color:%s;
+                                                                           font-size:15px;">
+                                                                    %s
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding:10px 0;
+                                                                           color:%s;
+                                                                           font-size:15px;">
+                                                                    Current status
+                                                                </td>
+                                                                <td align="right"
+                                                                    style="padding:10px 0;">
+                                                                    <span style="display:inline-block;
+                                                                                 padding:9px 14px;
+                                                                                 border-radius:20px;
+                                                                                 background-color:%s;
+                                                                                 color:%s;
+                                                                                 font-size:13px;
+                                                                                 font-weight:bold;
+                                                                                 letter-spacing:0.3px;">
+                                                                        %s
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding:10px 0;
+                                                                           color:%s;
+                                                                           font-size:15px;">
+                                                                    Application ID
+                                                                </td>
+                                                                <td align="right"
+                                                                    style="padding:10px 0;
+                                                                           color:%s;
+                                                                           font-size:15px;
+                                                                           word-break:break-all;">
+                                                                    %s
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                
+                                            %s
+                
+                                            <p style="margin:28px 0 0;
+                                                      color:%s;
+                                                      font-size:16px;
+                                                      line-height:1.8;">
+                                                Thank you for using %s.
+                                                We wish you the best in your
+                                                career journey.
+                                            </p>
+                                        </td>
+                                    </tr>
+                
+                                    <!-- Footer -->
+                                    <tr>
+                                        <td style="padding:24px 36px;
+                                                   background:#F8FAFC;
+                                                   border-top:1px solid %s;
+                                                   color:%s;
+                                                   font-size:13px;
+                                                   line-height:1.8;">
+                                            This is an automated notification
+                                            from %s. Please do not reply
+                                            directly to this email.
+                                            %s
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+                """.formatted(
+                PAGE_BACKGROUND,
+                PAGE_BACKGROUND,
+                BORDER,
+                headerColor,
+                BRAND_NAME,
+                TEXT_PRIMARY,
+                statusHeadline,
+                TEXT_SECONDARY,
                 candidateName,
+                BORDER,
+                TEXT_SECONDARY,
+                TEXT_PRIMARY,
                 jobTitle,
+                TEXT_SECONDARY,
                 companyName,
-                event.getApplicationId() == null
-                        ? "N/A"
-                        : event.getApplicationId().toString(),
+                BORDER,
+                TEXT_SECONDARY,
+                TEXT_SECONDARY,
                 oldStatus,
+                TEXT_SECONDARY,
+                statusBackground,
                 statusColor,
                 newStatus,
-                note,
-                changedAt
+                TEXT_SECONDARY,
+                TEXT_SECONDARY,
+                applicationId,
+                noteHtml,
+                TEXT_SECONDARY,
+                BRAND_NAME,
+                BORDER,
+                TEXT_SECONDARY,
+                BRAND_NAME,
+                changedAtHtml
         );
+    }
+
+    private String getHeaderColor(ApplicationStatus status) {
+        if (status == null) {
+            return NAVY;
+        }
+
+        return switch (status) {
+            case SHORTLISTED -> "#166534";
+            case INTERVIEW_SCHEDULED -> "#1D4ED8";
+            case HIRED -> "#047857";
+            case REJECTED -> "#334155";
+            case PENDING -> "#92400E";
+            case WITHDRAWN -> "#475569";
+            default -> NAVY;
+        };
     }
 
     private String getStatusColor(ApplicationStatus status) {
@@ -292,14 +392,138 @@ public class BuildHtmlResponseForEmail {
         }
 
         return switch (status) {
-            case SHORTLISTED -> "#15803d";
-            case REJECTED -> "#b91c1c";
-            case PENDING -> "#b45309";
-            case INTERVIEW_SCHEDULED -> "#1d4ed8";
+            case SHORTLISTED -> "#166534";
+            case REJECTED -> "#991B1B";
+            case PENDING -> "#92400E";
+            case INTERVIEW_SCHEDULED -> "#1D4ED8";
             case HIRED -> "#047857";
-            case WITHDRAWN -> "#64748b";
-            default -> "#475569";
+            case WITHDRAWN -> "#475569";
+            default -> "#334155";
         };
+    }
+
+    private String getStatusBackground(ApplicationStatus status) {
+        if (status == null) {
+            return "#F1F5F9";
+        }
+
+        return switch (status) {
+            case SHORTLISTED -> "#DCFCE7";
+            case REJECTED -> "#FEE2E2";
+            case PENDING -> "#FEF3C7";
+            case INTERVIEW_SCHEDULED -> "#DBEAFE";
+            case HIRED -> "#D1FAE5";
+            case WITHDRAWN -> "#E2E8F0";
+            default -> "#F1F5F9";
+        };
+    }
+
+    private String getStatusHeadline(ApplicationStatus status) {
+        if (status == null) {
+            return "Application Status Update";
+        }
+
+        return switch (status) {
+            case SHORTLISTED -> "Great news!";
+            case INTERVIEW_SCHEDULED -> "Your next step awaits";
+            case HIRED -> "Congratulations!";
+            case REJECTED -> "Application Update";
+            case PENDING -> "Application Under Review";
+            case WITHDRAWN -> "Application Update";
+            default -> "Application Status Update";
+        };
+    }
+
+    private String formatStatus(ApplicationStatus status) {
+        if (status == null) {
+            return "Not available";
+        }
+
+        String formatted = status.name().replace('_', ' ').toLowerCase();
+        StringBuilder result = new StringBuilder();
+        boolean capitalizeNext = true;
+
+        for (char ch : formatted.toCharArray()) {
+            if (Character.isWhitespace(ch)) {
+                result.append(ch);
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                result.append(Character.toUpperCase(ch));
+                capitalizeNext = false;
+            } else {
+                result.append(ch);
+            }
+        }
+
+        return result.toString();
+    }
+
+    private String buildNoteHtml(String note) {
+        if (note == null || note.isBlank()) {
+            return "";
+        }
+
+        return """
+                <table role="presentation" width="100%%"
+                       cellspacing="0" cellpadding="0" border="0"
+                       style="margin-top:28px;background:#F8FAFC;
+                              border-left:4px solid %s;">
+                    <tr>
+                        <td style="padding:20px;">
+                            <div style="font-size:14px;
+                                        font-weight:bold;
+                                        color:%s;
+                                        margin-bottom:10px;">
+                                MESSAGE FROM THE HIRING TEAM
+                            </div>
+                            <div style="font-size:16px;
+                                        line-height:1.8;
+                                        color:%s;
+                                        white-space:pre-line;">
+                                %s
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                """.formatted(
+                BORDER,
+                TEXT_PRIMARY,
+                TEXT_SECONDARY,
+                escapeHtml(note)
+        );
+    }
+
+    private String buildChangedAtHtml(Object changedAt) {
+        if (changedAt == null) {
+            return "";
+        }
+
+        String formattedDate = changedAt.toString();
+
+        if (changedAt instanceof TemporalAccessor temporal) {
+            try {
+                formattedDate = DateTimeFormatter
+                        .ofPattern("dd MMM yyyy, hh:mm a")
+                        .format(temporal);
+            } catch (RuntimeException ignored) {
+                // Retain the original value if the date cannot be formatted.
+            }
+        }
+
+        return """
+                <div style="margin-top:10px;
+                            font-size:13px;
+                            color:%s;">
+                    Updated: %s
+                </div>
+                """.formatted(
+                TEXT_SECONDARY,
+                escapeHtml(formattedDate)
+        );
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     private String escapeHtml(String value) {
@@ -314,5 +538,4 @@ public class BuildHtmlResponseForEmail {
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;");
     }
-
 }

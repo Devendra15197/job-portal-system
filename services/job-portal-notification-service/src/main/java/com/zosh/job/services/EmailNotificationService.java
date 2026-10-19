@@ -34,7 +34,13 @@ public class EmailNotificationService {
 
     public void sendStatusChangeEmail(ApplicationStatusChangedEvent event) throws Exception {
         try {
-            String subject = "Job Application Status Update for " + event.getJobTitle() + " at " + event.getCompanyName();
+            String jobTitle = event.getJobTitle() != null ? event.getJobTitle() : "your application";
+            String status = event.getNewStatus() != null
+                    ? event.getNewStatus().name().replace("_", " ")
+                    : "Updated";
+
+            String subject = "[Job Portal] Your application status for " + jobTitle + " at " + event.getCompanyName() + " is now " + status;
+
             String body = buildHtmlResponseForEmail.buildStatusChangeEmailHtml(event);
             String candidateEmail = event.getCandidateEmail();
             sendEmail(candidateEmail, subject, body);
